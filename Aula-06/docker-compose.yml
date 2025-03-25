@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_namee: flask_app
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+
+db:
+  build: .InfraBD
+  container_name: postgres_db
+  environment:
+    POSTGRES_DB: escola
+    POSTGRES_USER: faat
+    POSTGRES_PASSWORD: faat
+    ports:
+      - "3000:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    
+volumes:
+  postgres_data:

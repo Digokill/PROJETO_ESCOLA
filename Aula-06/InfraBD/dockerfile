@@ -1,0 +1,10 @@
+FROM postgres:13
+
+
+ENV POSTGRES_DB=escola
+ENV POSTGRES_DB_USER=faat
+ENV POSTGRES_DB_PASSWORD=faat
+
+COPY northwind.sql /docker-entrypoint-initdb.d/
+
+EXPOSE 5432
