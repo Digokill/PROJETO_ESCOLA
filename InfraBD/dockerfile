@@ -1,0 +1,13 @@
+FROM postgres:latest
+
+
+ENV POSTGRES_DB=escola
+ENV POSTGRES_DB_USER=faat
+ENV POSTGRES_DB_PASSWORD=faat
+
+
+
+# Copie o arquivo SQL para dentro da imagem
+COPY escola.sql /docker-entrypoint-initdb.d/
+
+EXPOSE 5432

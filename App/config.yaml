@@ -1,0 +1,18 @@
+import yaml
+import os
+
+# Supondo que o arquivo config.yaml esteja no diretório pai
+config_path = os.path.join(os.path.dirname(__file__), '..', 'config.yaml')
+
+with open(config_path, 'r') as config_file:
+    config = yaml.safe_load(config_file)
+
+  database: 
+  host: "postgres_db"
+  port: 5432
+  user: "faat"
+  password: "faat"
+  name: "escola"
+
+
+ 
