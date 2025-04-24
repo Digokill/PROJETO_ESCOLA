@@ -3,4 +3,5 @@ pyyaml
 Flask
 pytest
 flask_sqlalchemy
+ flasgger
 # ...existing dependencies...
