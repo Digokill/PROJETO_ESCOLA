@@ -5,10 +5,8 @@ import base64
 from flask import request, jsonify
 from app import app, db
 from models import Turma
-from flasgger import Swagger
 
 app = Flask(__name__)
-swagger = Swagger(app)
 
 @app.route('/turmas', methods=['POST'])
 def add_turma():

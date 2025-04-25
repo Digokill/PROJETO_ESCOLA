@@ -8,21 +8,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 # Configuração do Swagger
-swagger_config = {
-    "headers": [],
-    "specs": [
-        {
-            "endpoint": 'apispec',
-            "route": '/swagger/',
-            "rule_filter": lambda rule: True,  # Todas as rotas
-            "model_filter": lambda tag: True,  # Todos os modelos
-        }
-    ],
-    "static_url_path": "/flasgger_static",
-    "swagger_ui": True,
-    "specs_route": "/swagger/"
-}
-swagger_template = {
+swagger = Swagger(app, template={
     "swagger": "2.0",
     "info": {
         "title": "API Escola Infantil",
@@ -35,14 +21,12 @@ swagger_template = {
             "url": "http://escola.com",
         },
     },
-    "host": "localhost:5000",  # Atualize conforme necessário
-    "basePath": "/",  # Base da API
+    "host": "localhost:5000",
+    "basePath": "/",
     "schemes": ["http"],
-    "operationId": "getmyData",
     "consumes": ["application/json"],
     "produces": ["application/json"],
-}
-swagger = Swagger(app, config=swagger_config, template=swagger_template)
+})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

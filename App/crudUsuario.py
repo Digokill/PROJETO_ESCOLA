@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify
-from flasgger import Swagger
 import Util.bd as bd
 import base64
 
@@ -8,7 +7,6 @@ from app import app, db
 from models import Usuario
 
 app = Flask(__name__)
-swagger = Swagger(app)
 
 @app.route('/usuarios', methods=['POST'])
 def add_usuario():
