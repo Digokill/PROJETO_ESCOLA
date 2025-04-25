@@ -4,14 +4,48 @@ import base64
 
 from flask import request, jsonify
 from app import app, db
-from models import Aluno, Turma, Pagamento, Presenca, Atividade
+from models import Turma
+from flasgger import Swagger
 
 app = Flask(__name__)
-
-
+swagger = Swagger(app)
 
 @app.route('/turmas', methods=['POST'])
 def add_turma():
+    """
+    Adicionar uma nova turma
+    ---
+    tags:
+      - Turmas
+    parameters:
+      - in: body
+        name: body
+        required: true
+        description: Dados da turma a ser adicionada
+        schema:
+          type: object
+          properties:
+            nome:
+              type: string
+              example: "Turma A"
+            professor_responsavel:
+              type: string
+              example: "Prof. João"
+            horario:
+              type: string
+              example: "08:00 - 12:00"
+    responses:
+      201:
+        description: Turma adicionada com sucesso
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "Turma adicionada com sucesso!"
+      400:
+        description: Erro na requisição
+    """
     data = request.get_json()
     nova_turma = Turma(
         nome=data['nome'],

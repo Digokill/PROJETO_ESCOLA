@@ -4,114 +4,47 @@ import base64
 
 from flask import request, jsonify
 from app import app, db
-from models import Aluno, Turma, Pagamento, Presenca, Atividade
+from models import Aluno
 
 app = Flask(__name__)
 
-# @app.route('/alunos', methods=['POST'])
-# def adicionar_aluno():
-#     data = request.get_json()
-#     conn = bd.create_connection()
-#     if conn is None:
-#         return jsonify({"error": "Connection to DB failed"}), 500
-#     cursor = conn.cursor()
-#     try:
-#         cursor.execute(
-#             """
-#             INSERT INTO alunos (aluno_id, nome, endereco, cidade, estado, cep, pais, telefone)
-#             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-#             """,
-#             (data['aluno_id'], data['nome'], data['endereco'], data['cidade'], data['estado'], data['cep'], data['pais'], data['telefone'])
-#         )
-#         conn.commit()
-#         return jsonify({"message": "Aluno adicionado"}), 201
-#     except Exception as e:
-#         conn.rollback()
-#         return jsonify({"error": str(e)}), 500
-#     finally:
-#         cursor.close()
-#         conn.close()
-
-# @app.route('/alunos/<int:aluno_id', methods=['GET'])
-# def read_aluno(aluno_id):
-#     conn = bd.create_connection()
-#     if conn is None:
-#         return jsonify({"error": "Connection to DB failed"}), 500
-#     cursor = conn.cursor()
-#     try:
-#         cursor.execute(
-#             """
-#             SELECT * FROM alunos WHERE aluno_id = %s
-#             """,
-#             (aluno_id,)
-#         )
-#         aluno = cursor.fetchone()
-#         if aluno is None:
-#             return jsonify({"error": "Aluno não encontrado"}), 404
-#         return jsonify({
-#             "aluno_id": aluno[0],
-#             "nome": aluno[1],
-#             "endereco": aluno[2],
-#             "cidade": aluno[3],
-#             "estado": aluno[4],
-#             "cep": aluno[5],
-#             "pais": aluno[6],
-#             "telefone": aluno[7]
-#         }), 200
-#     except Exception as e:
-#         return jsonify({"error": str(e)}), 500
-#     finally:
-#         cursor.close()
-#         conn.close()
-
-# @app.route('/alunos/<int:aluno_id>', methods=['PUT'])
-# def update_aluno(aluno_id):
-#     data = request.get_json()
-#     conn = bd.create_connection()
-#     if conn is None:
-#         return jsonify({"error": "Connection to DB failed"}), 500
-#     cursor = conn.cursor()
-#     try:
-#         cursor.execute(
-#             """
-#             UPDATE alunos
-#             SET nome = %s, endereco = %s, cidade = %s, estado = %s, cep = %s, pais = %s, telefone = %s
-#             WHERE aluno_id = %s
-#             """,
-#             (data['nome'], data['endereco'], data['cidade'], data['estado'], data['cep'], data['pais'], data['telefone'], aluno_id)
-#         )
-#         conn.commit()
-#         return jsonify({"message": "Aluno atualizado"}), 200
-#     except Exception as e:  
-#         conn.rollback()
-#         return jsonify({"error": str(e)}), 500
-#     finally:
-#         cursor.close()
-#         conn.close()
-
-# @app.route('/alunos/<int:aluno_id>', methods=['DELETE'])
-# def delete_aluno(aluno_id):
-#     conn = bd.create_connection()
-#     if conn is None:
-#         return jsonify({"error": "Connection to DB failed"}), 500
-#     cursor = conn.cursor()
-#     try:
-#         cursor.execute(
-#             """
-#             DELETE FROM alunos WHERE aluno_id = %s
-#             """,
-#             (aluno_id,)
-#         )
-#         conn.commit()
-#         return jsonify({"message": "Aluno deletado"}), 200
-#     except Exception as e:
-#         conn.rollback()
-#         return jsonify({"error": str(e)}), 500
-#     finally:
-#         cursor.close()
-#         conn.close()
 @app.route('/alunos', methods=['POST'])
 def add_aluno():
+    """
+    Adicionar um novo aluno
+    ---
+    tags:
+      - Alunos
+    parameters:
+      - in: body
+        name: body
+        required: true
+        description: Dados do aluno a ser adicionado
+        schema:
+          type: object
+          properties:
+            nome_completo:
+              type: string
+              example: "João Silva"
+            data_nascimento:
+              type: string
+              format: date
+              example: "2010-05-15"
+            turma_id:
+              type: integer
+              example: 1
+    responses:
+      201:
+        description: Aluno adicionado com sucesso
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "Aluno adicionado com sucesso!"
+      400:
+        description: Erro na requisição
+    """
     data = request.get_json()
     novo_aluno = Aluno(
         nome_completo=data['nome_completo'],

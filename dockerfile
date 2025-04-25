@@ -7,4 +7,4 @@ RUN pip install -r requirements.txt
 
 COPY ./App .
 
-CMD ["python", "crudAluno.py"]
+CMD ["python", "app.py"]

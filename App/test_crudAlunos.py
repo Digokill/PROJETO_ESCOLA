@@ -1,7 +1,7 @@
 # test_crudAlunos.py
 
 import pytest
-from crudAlunos import criar_aluno, ler_aluno, atualizar_aluno, deletar_aluno
+from crudAluno import criar_aluno, ler_aluno, atualizar_aluno, deletar_aluno
 
 def test_criar_aluno():
     aluno = {"id": 1, "nome": "João", "idade": 20}
