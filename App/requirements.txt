@@ -2,5 +2,6 @@ psycopg2-binary
 pyyaml
 Flask
 pytest
+prometheus-flask-exporter
 flask_sqlalchemy
 flasgger
