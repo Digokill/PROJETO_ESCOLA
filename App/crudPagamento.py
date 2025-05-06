@@ -7,6 +7,9 @@ from models import Pagamento
 from flasgger import Swagger
 from prometheus_flask_exporter import PrometheusMetrics
 from prometheus_client import Counter
+from logging_config import get_logger
+
+logger = get_logger(__name__)
 
 app = Flask(__name__)
 swagger = Swagger(app)
@@ -82,8 +85,10 @@ def add_pagamento():
       400:
         description: Erro na requisição
     """
+    logger.info("Iniciando registro de um novo pagamento.")
     conn = bd.create_connection()
     if conn is None:
+        logger.error("Falha ao conectar ao banco de dados.")
         return jsonify({"error": "Failed to connect to the database"}), 500
 
     cursor = conn.cursor()
@@ -97,8 +102,10 @@ def add_pagamento():
         )
         db.session.add(novo_pagamento)
         db.session.commit()
+        logger.info("Pagamento registrado com sucesso.")
         return jsonify({'message': 'Pagamento registrado com sucesso!'}), 201
     except Exception as e:
+        logger.error(f"Erro ao registrar pagamento: {e}")
         return jsonify({"error": str(e)}), 400
     finally:
         cursor.close()

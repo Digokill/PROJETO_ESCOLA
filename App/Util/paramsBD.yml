@@ -1,5 +1,1 @@
-db_name: "escola"
-db_user: "faat"
-db_password: "faat"
-db_host: "postgres_db"
-db_port: "5432"
+# Este arquivo é redundante e pode ser removido.

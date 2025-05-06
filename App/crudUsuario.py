@@ -6,6 +6,9 @@ from app import app, db
 from models import Usuario
 from prometheus_flask_exporter import PrometheusMetrics
 from prometheus_client import Counter
+from logging_config import get_logger
+
+logger = get_logger(__name__)
 
 app = Flask(__name__)
 
@@ -75,8 +78,10 @@ def add_usuario():
       400:
         description: Erro na requisição
     """
+    logger.info("Iniciando adição de um novo usuário.")
     conn = bd.create_connection()
     if conn is None:
+        logger.error("Falha ao conectar ao banco de dados.")
         return jsonify({"error": "Failed to connect to the database"}), 500
 
     cursor = conn.cursor()
@@ -89,8 +94,10 @@ def add_usuario():
         )
         db.session.add(novo_usuario)
         db.session.commit()
+        logger.info("Usuário adicionado com sucesso.")
         return jsonify({'message': 'Usuário adicionado com sucesso!'}), 201
     except Exception as e:
+        logger.error(f"Erro ao adicionar usuário: {e}")
         return jsonify({"error": str(e)}), 400
     finally:
         cursor.close()

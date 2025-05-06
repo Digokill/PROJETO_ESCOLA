@@ -1,3 +1,8 @@
+try:
+    import psycopg2
+except ImportError as e:
+    raise ImportError("O módulo 'psycopg2' não está instalado. Instale-o com 'pip install psycopg2-binary'.") from e
+
 from flask import Flask, request, jsonify
 import Util.bd as bd
 import base64
@@ -6,6 +11,9 @@ from app import app, db
 from models import Turma
 from prometheus_flask_exporter import PrometheusMetrics
 from prometheus_client import Counter
+from logging_config import get_logger
+
+logger = get_logger(__name__)
 
 app = Flask(__name__)
 
@@ -75,8 +83,10 @@ def add_turma():
       400:
         description: Erro na requisição
     """
+    logger.info("Iniciando adição de uma nova turma.")
     conn = bd.create_connection()
     if conn is None:
+        logger.error("Falha ao conectar ao banco de dados.")
         return jsonify({"error": "Failed to connect to the database"}), 500
 
     cursor = conn.cursor()
@@ -89,8 +99,10 @@ def add_turma():
         )
         db.session.add(nova_turma)
         db.session.commit()
+        logger.info("Turma adicionada com sucesso.")
         return jsonify({'message': 'Turma adicionada com sucesso!'}), 201
     except Exception as e:
+        logger.error(f"Erro ao adicionar turma: {e}")
         return jsonify({"error": str(e)}), 400
     finally:
         cursor.close()

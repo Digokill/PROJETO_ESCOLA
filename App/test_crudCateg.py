@@ -3,10 +3,10 @@ from unittest.mock import patch, MagicMock
 import sys
 import os
 
-# Adiciona o diretório raiz do projeto ao sys.path
+# Adiciona o diretório App ao sys.path para que seja possível importar módulos corretamente
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from app.crudAluno import app
+from crudAluno import app
 
 @pytest.fixture
 def client():

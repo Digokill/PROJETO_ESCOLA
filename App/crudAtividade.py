@@ -7,6 +7,9 @@ from models import  Atividade
 from flasgger import Swagger
 from prometheus_flask_exporter import PrometheusMetrics
 from prometheus_client import Counter
+from logging_config import get_logger
+
+logger = get_logger(__name__)
 
 app = Flask(__name__)
 swagger = Swagger(app)
@@ -78,8 +81,10 @@ def add_atividade():
       400:
         description: Erro na requisição
     """
+    logger.info("Iniciando cadastro de uma nova atividade.")
     conn = bd.create_connection()
     if conn is None:
+        logger.error("Falha ao conectar ao banco de dados.")
         return jsonify({"error": "Failed to connect to the database"}), 500
 
     cursor = conn.cursor()
@@ -92,8 +97,10 @@ def add_atividade():
         )
         db.session.add(nova_atividade)
         db.session.commit()
+        logger.info("Atividade cadastrada com sucesso.")
         return jsonify({'message': 'Atividade cadastrada com sucesso!'}), 201
     except Exception as e:
+        logger.error(f"Erro ao cadastrar atividade: {e}")
         return jsonify({"error": str(e)}), 400
     finally:
         cursor.close()

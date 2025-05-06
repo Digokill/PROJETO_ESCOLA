@@ -7,6 +7,9 @@ from models import Aluno, Turma, Pagamento, Presenca, Atividade, AtividadeAluno
 from flasgger import Swagger
 from prometheus_flask_exporter import PrometheusMetrics
 from prometheus_client import Counter
+from logging_config import get_logger
+
+logger = get_logger(__name__)
 
 app = Flask(__name__)
 swagger = Swagger(app)
@@ -78,8 +81,10 @@ def add_atividade_aluno():
       400:
         description: Erro na requisição
     """
+    logger.info("Iniciando registro de uma atividade para um aluno.")
     conn = bd.create_connection()
     if conn is None:
+        logger.error("Falha ao conectar ao banco de dados.")
         return jsonify({"error": "Failed to connect to the database"}), 500
 
     cursor = conn.cursor()
@@ -92,8 +97,10 @@ def add_atividade_aluno():
         )
         db.session.add(nova_atividade_aluno)
         db.session.commit()
+        logger.info("Atividade do aluno registrada com sucesso.")
         return jsonify({'message': 'Atividade do aluno registrada com sucesso!'}), 201
     except Exception as e:
+        logger.error(f"Erro ao registrar atividade do aluno: {e}")
         return jsonify({"error": str(e)}), 400
     finally:
         cursor.close()

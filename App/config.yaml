@@ -1,7 +1,8 @@
-import yaml
-import os
+database:
+  user: "faat"
+  password: "faat"
+  host: "postgres_db"
+  port: 5432
+  name: "escola"
 
 
-
-
- 

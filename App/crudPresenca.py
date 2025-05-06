@@ -8,6 +8,9 @@ from prometheus_client import Counter
 
 from app import app, db
 from models import  Presenca
+from logging_config import get_logger
+
+logger = get_logger(__name__)
 
 app = Flask(__name__)
 swagger = Swagger(app)
@@ -79,8 +82,10 @@ def add_presenca():
       400:
         description: Erro na requisição
     """
+    logger.info("Iniciando registro de uma nova presença.")
     conn = bd.create_connection()
     if conn is None:
+        logger.error("Falha ao conectar ao banco de dados.")
         return jsonify({"error": "Failed to connect to the database"}), 500
 
     cursor = conn.cursor()
@@ -93,8 +98,10 @@ def add_presenca():
         )
         db.session.add(nova_presenca)
         db.session.commit()
+        logger.info("Presença registrada com sucesso.")
         return jsonify({'message': 'Presença registrada com sucesso!'}), 201
     except Exception as e:
+        logger.error(f"Erro ao registrar presença: {e}")
         return jsonify({"error": str(e)}), 400
     finally:
         cursor.close()

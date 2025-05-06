@@ -1,0 +1,7 @@
+flask_sqlalchemy
+flasgger
+prometheus-flask-exporter
+psycopg2
+PyYAML
+pytest
+# ...adicione outras dependências aqui, se necessário...
