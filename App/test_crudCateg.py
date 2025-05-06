@@ -32,6 +32,24 @@ def test_create_category_success(mock_create_connection, client):
     assert b'Category created successfully' in response.data
 
 @patch('app.crudCateg.bd.create_connection')
+@patch('app.crudCateg.logging')
+def test_create_category_success_logging(mock_logging, mock_create_connection, client):
+    mock_conn = MagicMock()
+    mock_cursor = MagicMock()
+    mock_create_connection.return_value = mock_conn
+    mock_conn.cursor.return_value = mock_cursor
+
+    response = client.post('/categories', json={
+        'category_id': 1,
+        'category_name': 'Test Category',
+        'description': 'Test Description',
+        'picture': None
+    })
+
+    assert response.status_code == 201
+    mock_logging.info.assert_called_with('Categoria Test Category criada com sucesso.')
+
+@patch('app.crudCateg.bd.create_connection')
 def test_create_category_db_failure(mock_create_connection, client):
     mock_create_connection.return_value = None
 
@@ -44,6 +62,21 @@ def test_create_category_db_failure(mock_create_connection, client):
 
     assert response.status_code == 500
     assert b'Failed to connect to the database' in response.data
+
+@patch('app.crudCateg.bd.create_connection')
+@patch('app.crudCateg.logging')
+def test_create_category_db_failure_logging(mock_logging, mock_create_connection, client):
+    mock_create_connection.return_value = None
+
+    response = client.post('/categories', json={
+        'category_id': 1,
+        'category_name': 'Test Category',
+        'description': 'Test Description',
+        'picture': None
+    })
+
+    assert response.status_code == 500
+    mock_logging.error.assert_called_with('Erro ao conectar ao banco de dados ao criar categoria.')
 
 @patch('app.crudCateg.bd.create_connection')
 def test_read_category_success(mock_create_connection, client):

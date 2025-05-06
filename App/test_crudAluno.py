@@ -25,6 +25,23 @@ def test_add_aluno_success(mock_create_connection, client):
     assert b'Aluno adicionado com sucesso!' in response.data
 
 @patch('crudAluno.bd.create_connection')
+@patch('crudAluno.logging')
+def test_add_aluno_success_logging(mock_logging, mock_create_connection, client):
+    mock_conn = MagicMock()
+    mock_cursor = MagicMock()
+    mock_create_connection.return_value = mock_conn
+    mock_conn.cursor.return_value = mock_cursor
+
+    response = client.post('/alunos', json={
+        'nome_completo': 'João Silva',
+        'data_nascimento': '2010-05-15',
+        'turma_id': 1
+    })
+
+    assert response.status_code == 201
+    mock_logging.info.assert_called_with('Aluno João Silva adicionado com sucesso.')
+
+@patch('crudAluno.bd.create_connection')
 def test_add_aluno_db_failure(mock_create_connection, client):
     mock_create_connection.return_value = None
 
@@ -36,6 +53,20 @@ def test_add_aluno_db_failure(mock_create_connection, client):
 
     assert response.status_code == 500
     assert b'Failed to connect to the database' in response.data
+
+@patch('crudAluno.bd.create_connection')
+@patch('crudAluno.logging')
+def test_add_aluno_db_failure_logging(mock_logging, mock_create_connection, client):
+    mock_create_connection.return_value = None
+
+    response = client.post('/alunos', json={
+        'nome_completo': 'João Silva',
+        'data_nascimento': '2010-05-15',
+        'turma_id': 1
+    })
+
+    assert response.status_code == 500
+    mock_logging.error.assert_called_with('Erro ao conectar ao banco de dados ao adicionar aluno.')
 
 def test_ler_aluno_success(client):
     with patch('crudAluno.Aluno.query.get') as mock_query:
