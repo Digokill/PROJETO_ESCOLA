@@ -13,56 +13,65 @@ DROP TABLE IF EXISTS presenca;
 DROP TABLE IF EXISTS atividade;
 DROP TABLE IF EXISTS atividade_aluno;
 DROP TABLE IF EXISTS usuario;
+DROP TABLE IF EXISTS disciplina;
+DROP TABLE IF EXISTS nota;
 
 
 CREATE TABLE Professor (
     id_professor SERIAL PRIMARY KEY,
-    nome_completo VARCHAR(255) NOT NULL,
-    email VARCHAR(100) NOT NULL,
-    telefone VARCHAR(20) NOT NULL
+    nome_completo VARCHAR(255),
+    email VARCHAR(100),
+    telefone VARCHAR(20)
+);
+
+CREATE TABLE Disciplina (
+    id_disciplina SERIAL PRIMARY KEY,
+    nome_disciplina VARCHAR(100),
+    codigo VARCHAR(20) UNIQUE,
+    carga_horaria INT
 );
 
 CREATE TABLE turma (
     id_turma SERIAL PRIMARY KEY,
-    nome_turma VARCHAR(50) NOT NULL,
+    nome_turma VARCHAR(50),
     id_professor INT REFERENCES Professor(id_professor),
-    horario VARCHAR(100) NOT NULL
+    horario VARCHAR(100),
+    ano_letivo INT,
+    id_disciplina INT REFERENCES Disciplina(id_disciplina)
 );
 
 CREATE TABLE alunos (
    id_aluno SERIAL PRIMARY KEY,
-    nome_completo VARCHAR(255) NOT NULL,
-    data_nascimento DATE NOT NULL,
+    nome_completo VARCHAR(255),
+    data_nascimento DATE,
     id_turma INT REFERENCES Turma(id_turma),
-    nome_responsavel VARCHAR(255) NOT NULL,
-    telefone_responsavel VARCHAR(20) NOT NULL,
-    email_responsavel VARCHAR(100) NOT NULL,
+    nome_responsavel VARCHAR(255),
+    telefone_responsavel VARCHAR(20),
+    email_responsavel VARCHAR(100),
     informacoes_adicionais TEXT
 )
-
-
 
 CREATE TABLE Pagamento (
     id_pagamento SERIAL PRIMARY KEY,
     id_aluno INT REFERENCES Aluno(id_aluno),
-    data_pagamento DATE NOT NULL,
-    valor_pago DECIMAL(10, 2) NOT NULL,
-    forma_pagamento VARCHAR(50) NOT NULL,
-    referencia VARCHAR(100) NOT NULL,
-    status VARCHAR(20) NOT NULL
+    data_pagamento DATE,
+    valor_pago DECIMAL(10, 2),
+    forma_pagamento VARCHAR(50),
+    referencia VARCHAR(100),
+    status VARCHAR(20)
 );
 
 CREATE TABLE Presenca (
     id_presenca SERIAL PRIMARY KEY,
     id_aluno INT REFERENCES Aluno(id_aluno),
-    data_presenca DATE NOT NULL,
-    presente BOOLEAN NOT NULL
+    data_presenca DATE,
+    presente BOOLEAN
 );
 
 CREATE TABLE Atividade (
     id_atividade SERIAL PRIMARY KEY,
-    descricao TEXT NOT NULL,
-    data_realizacao DATE NOT NULL
+    descricao TEXT,
+    data_realizacao DATE
 );
 
 CREATE TABLE Atividade_Aluno (
@@ -71,11 +80,19 @@ CREATE TABLE Atividade_Aluno (
     PRIMARY KEY (id_atividade, id_aluno)
 );
 
+CREATE TABLE Nota (
+    id_nota SERIAL PRIMARY KEY,
+    id_aluno INT REFERENCES Alunos(id_aluno),
+    id_disciplina INT REFERENCES Disciplina(id_disciplina),
+    nota DECIMAL(5, 2),
+    data_lancamento DATE
+);
+
 CREATE TABLE Usuario (
     id_usuario SERIAL PRIMARY KEY,
-    login VARCHAR(50) UNIQUE NOT NULL,
-    senha VARCHAR(255) NOT NULL,
-    nivel_acesso VARCHAR(20) NOT NULL,
+    login VARCHAR(50) UNIQUE,
+    senha VARCHAR(255),
+    nivel_acesso VARCHAR(20),
     id_professor INT REFERENCES Professor(id_professor)
 );
 
