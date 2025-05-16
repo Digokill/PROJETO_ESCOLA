@@ -16,9 +16,10 @@ def test_add_usuario_success(mock_create_connection, client):
     mock_conn.cursor.return_value = mock_cursor
 
     response = client.post('/usuarios', json={
-        'nome_usuario': 'admin',
+        'login': 'admin',
         'senha': '123456',
-        'tipo_usuario': 'administrador'
+        'nivel_acesso': 'administrador',
+        'id_professor': None
     })
 
     assert response.status_code == 201
@@ -29,9 +30,10 @@ def test_add_usuario_db_failure(mock_create_connection, client):
     mock_create_connection.return_value = None
 
     response = client.post('/usuarios', json={
-        'nome_usuario': 'admin',
+        'login': 'admin',
         'senha': '123456',
-        'tipo_usuario': 'administrador'
+        'nivel_acesso': 'administrador',
+        'id_professor': None
     })
 
     assert response.status_code == 500
@@ -46,9 +48,10 @@ def test_add_usuario_success_logging(mock_logging, mock_create_connection, clien
     mock_conn.cursor.return_value = mock_cursor
 
     response = client.post('/usuarios', json={
-        'nome_usuario': 'admin',
+        'login': 'admin',
         'senha': '123456',
-        'tipo_usuario': 'administrador'
+        'nivel_acesso': 'administrador',
+        'id_professor': None
     })
 
     assert response.status_code == 201
@@ -60,9 +63,10 @@ def test_add_usuario_db_failure_logging(mock_logging, mock_create_connection, cl
     mock_create_connection.return_value = None
 
     response = client.post('/usuarios', json={
-        'nome_usuario': 'admin',
+        'login': 'admin',
         'senha': '123456',
-        'tipo_usuario': 'administrador'
+        'nivel_acesso': 'administrador',
+        'id_professor': None
     })
 
     assert response.status_code == 500

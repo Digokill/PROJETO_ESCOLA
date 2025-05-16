@@ -16,9 +16,11 @@ def test_add_turma_success(mock_create_connection, client):
     mock_conn.cursor.return_value = mock_cursor
 
     response = client.post('/turmas', json={
-        'nome': 'Turma A',
-        'professor_responsavel': 'Prof. João',
-        'horario': '08:00 - 12:00'
+        'nome_turma': 'Turma A',
+        'id_professor': 1,
+        'horario': '08:00 - 12:00',
+        'ano_letivo': 2023,
+        'id_disciplina': 2
     })
 
     assert response.status_code == 201
@@ -29,9 +31,11 @@ def test_add_turma_db_failure(mock_create_connection, client):
     mock_create_connection.return_value = None
 
     response = client.post('/turmas', json={
-        'nome': 'Turma A',
-        'professor_responsavel': 'Prof. João',
-        'horario': '08:00 - 12:00'
+        'nome_turma': 'Turma A',
+        'id_professor': 1,
+        'horario': '08:00 - 12:00',
+        'ano_letivo': 2023,
+        'id_disciplina': 2
     })
 
     assert response.status_code == 500
@@ -46,9 +50,11 @@ def test_add_turma_success_logging(mock_logging, mock_create_connection, client)
     mock_conn.cursor.return_value = mock_cursor
 
     response = client.post('/turmas', json={
-        'nome': 'Turma A',
-        'professor_responsavel': 'Prof. João',
-        'horario': '08:00 - 12:00'
+        'nome_turma': 'Turma A',
+        'id_professor': 1,
+        'horario': '08:00 - 12:00',
+        'ano_letivo': 2023,
+        'id_disciplina': 2
     })
 
     assert response.status_code == 201
@@ -60,9 +66,11 @@ def test_add_turma_db_failure_logging(mock_logging, mock_create_connection, clie
     mock_create_connection.return_value = None
 
     response = client.post('/turmas', json={
-        'nome': 'Turma A',
-        'professor_responsavel': 'Prof. João',
-        'horario': '08:00 - 12:00'
+        'nome_turma': 'Turma A',
+        'id_professor': 1,
+        'horario': '08:00 - 12:00',
+        'ano_letivo': 2023,
+        'id_disciplina': 2
     })
 
     assert response.status_code == 500

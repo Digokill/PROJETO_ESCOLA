@@ -17,8 +17,8 @@ def test_add_professor_success(mock_create_connection, client):
 
     response = client.post('/professores', json={
         'nome_completo': 'Maria Silva',
-        'especialidade': 'Matemática',
-        'turma_id': 1
+        'email': 'maria.silva@example.com',
+        'telefone': '123456789'
     })
 
     assert response.status_code == 201
@@ -30,8 +30,8 @@ def test_add_professor_db_failure(mock_create_connection, client):
 
     response = client.post('/professores', json={
         'nome_completo': 'Maria Silva',
-        'especialidade': 'Matemática',
-        'turma_id': 1
+        'email': 'maria.silva@example.com',
+        'telefone': '123456789'
     })
 
     assert response.status_code == 500
@@ -47,8 +47,8 @@ def test_add_professor_success_logging(mock_logging, mock_create_connection, cli
 
     response = client.post('/professores', json={
         'nome_completo': 'Maria Silva',
-        'especialidade': 'Matemática',
-        'turma_id': 1
+        'email': 'maria.silva@example.com',
+        'telefone': '123456789'
     })
 
     assert response.status_code == 201
@@ -61,8 +61,8 @@ def test_add_professor_db_failure_logging(mock_logging, mock_create_connection, 
 
     response = client.post('/professores', json={
         'nome_completo': 'Maria Silva',
-        'especialidade': 'Matemática',
-        'turma_id': 1
+        'email': 'maria.silva@example.com',
+        'telefone': '123456789'
     })
 
     assert response.status_code == 500
