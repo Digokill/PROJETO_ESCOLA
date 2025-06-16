@@ -1,7 +1,7 @@
 database:
   user: "faat"
   password: "faat"
-  host: "postgres_db"
+  host: "db"  # Corrigido de postgres_db para db
   port: 5432
   name: "escola"
 

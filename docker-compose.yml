@@ -1,7 +1,9 @@
+
 services:
   app:
     build:
       context: .
+      dockerfile: Dockerfile
     container_name: flask_app
     ports:
       - "5000:5000"
@@ -10,11 +12,13 @@ services:
     depends_on:
       - db
     networks:
-      - monitoring_network  
+      - monitoring_network
+    environment:
+      - DOCKER_ENV=true  # Adicionado para indicar execução no Docker
+    entrypoint: python app.py
 
   db:
-    build: ./InfraBD
-    image: postgres:13-alpine
+    image: postgres:17-alpine
     container_name: postgres_db
     environment:
       POSTGRES_DB: escola

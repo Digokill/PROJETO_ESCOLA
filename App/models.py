@@ -1,10 +1,13 @@
-from app import db
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
 
 class Aluno(db.Model):
+    __tablename__ = 'alunos'
     id = db.Column(db.Integer, primary_key=True)
     nome_completo = db.Column(db.String(100), nullable=False)
     data_nascimento = db.Column(db.Date, nullable=False)
-    turma_id = db.Column(db.Integer, db.ForeignKey('turma.id'), nullable=False)
+    turma_id = db.Column(db.Integer, nullable=False)
 
 class Turma(db.Model):
     id = db.Column(db.Integer, primary_key=True)
