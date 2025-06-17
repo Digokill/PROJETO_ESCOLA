@@ -1,19 +1,17 @@
-from flask import Flask, request, jsonify
+from flask import Flask
 from flasgger import Swagger
-import Util.bd as bd
-import base64
-
 from prometheus_flask_exporter import PrometheusMetrics
 from prometheus_client import Counter
-
-from app import app, db
-from models import  Presenca
 from logging_config import get_logger
+from crudPresenca import presencas_bp
 
 logger = get_logger(__name__)
 
 app = Flask(__name__)
 swagger = Swagger(app)
+
+# Registro do Blueprint
+app.register_blueprint(presencas_bp)
 
 # Configuração do Prometheus
 metrics = PrometheusMetrics(app, default_labels={'app_name': 'flask_app'})
@@ -44,69 +42,6 @@ def after_request(response):
         error_counter.labels(endpoint=endpoint, method=method, status=str(status)).inc()
 
     return response
-
-@app.route('/presencas', methods=['POST'])
-def add_presenca():
-    """
-    Registrar uma nova presença
-    ---
-    tags:
-      - Presenças
-    parameters:
-      - in: body
-        name: body
-        required: true
-        description: Dados da presença a ser registrada
-        schema:
-          type: object
-          properties:
-            aluno_id:
-              type: integer
-              example: 1
-            data:
-              type: string
-              format: date
-              example: "2023-10-01"
-            presente:
-              type: boolean
-              example: true
-    responses:
-      201:
-        description: Presença registrada com sucesso
-        schema:
-          type: object
-          properties:
-            message:
-              type: string
-              example: "Presença registrada com sucesso!"
-      400:
-        description: Erro na requisição
-    """
-    logger.info("Iniciando registro de uma nova presença.")
-    conn = bd.create_connection()
-    if conn is None:
-        logger.error("Falha ao conectar ao banco de dados.")
-        return jsonify({"error": "Failed to connect to the database"}), 500
-
-    cursor = conn.cursor()
-    data = request.get_json()
-    try:
-        nova_presenca = Presenca(
-            aluno_id=data['aluno_id'],
-            data=data['data'],
-            presente=data['presente']
-        )
-        db.session.add(nova_presenca)
-        db.session.commit()
-        logger.info("Presença registrada com sucesso.")
-        return jsonify({'message': 'Presença registrada com sucesso!'}), 201
-    except Exception as e:
-        logger.error(f"Erro ao registrar presença: {e}")
-        return jsonify({"error": str(e)}), 400
-    finally:
-        cursor.close()
-        conn.close()
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

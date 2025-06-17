@@ -1,9 +1,6 @@
 from flask import Flask, request, jsonify
-import Util.bd as bd
-import base64
-
-from app import app, db
-from models import Aluno, Turma, Pagamento, Presenca, Atividade, AtividadeAluno
+from flask import Blueprint
+import psycopg2
 from flasgger import Swagger
 from prometheus_flask_exporter import PrometheusMetrics
 from prometheus_client import Counter
@@ -44,67 +41,49 @@ def after_request(response):
 
     return response
 
-@app.route('/atividades_alunos', methods=['POST'])
+# Definir o Blueprint
+atividades_alunos_bp = Blueprint('atividades_alunos', __name__)
+
+logger.info("CRUD AtividadeAluno iniciado com sucesso.")
+
+def get_db_connection():
+    """
+    Retorna uma conexão com o banco de dados PostgreSQL.
+    """
+    return psycopg2.connect(
+        dbname="escola",
+        user="faat",
+        password="faat",
+        host="db",
+        port=5432
+    )
+
+@atividades_alunos_bp.route('/atividades_alunos', methods=['POST'])
 def add_atividade_aluno():
     """
-    Registrar uma atividade para um aluno
-    ---
-    tags:
-      - Atividades Alunos
-    parameters:
-      - in: body
-        name: body
-        required: true
-        description: Dados da atividade do aluno a ser registrada
-        schema:
-          type: object
-          properties:
-            aluno_id:
-              type: integer
-              example: 1
-            atividade_id:
-              type: integer
-              example: 2
-            nota:
-              type: number
-              format: float
-              example: 9.5
-    responses:
-      201:
-        description: Atividade do aluno registrada com sucesso
-        schema:
-          type: object
-          properties:
-            message:
-              type: string
-              example: "Atividade do aluno registrada com sucesso!"
-      400:
-        description: Erro na requisição
+    Registrar uma atividade para um aluno.
     """
     logger.info("Iniciando registro de uma atividade para um aluno.")
-    conn = bd.create_connection()
-    if conn is None:
-        logger.error("Falha ao conectar ao banco de dados.")
-        return jsonify({"error": "Failed to connect to the database"}), 500
-
-    cursor = conn.cursor()
+    conn = get_db_connection()
+    cur = conn.cursor()
     data = request.get_json()
     try:
-        nova_atividade_aluno = AtividadeAluno(
-            aluno_id=data['aluno_id'],
-            atividade_id=data['atividade_id'],
-            nota=data['nota']
+        cur.execute(
+            "INSERT INTO atividades_alunos (aluno_id, atividade_id, nota) VALUES (%s, %s, %s)",
+            (data['aluno_id'], data['atividade_id'], data['nota'])
         )
-        db.session.add(nova_atividade_aluno)
-        db.session.commit()
+        conn.commit()
         logger.info("Atividade do aluno registrada com sucesso.")
         return jsonify({'message': 'Atividade do aluno registrada com sucesso!'}), 201
     except Exception as e:
         logger.error(f"Erro ao registrar atividade do aluno: {e}")
         return jsonify({"error": str(e)}), 400
     finally:
-        cursor.close()
+        cur.close()
         conn.close()
+
+# Registrar o Blueprint
+app.register_blueprint(atividades_alunos_bp)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

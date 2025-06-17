@@ -1,13 +1,9 @@
-from flask import Flask, request, jsonify
-import Util.bd as bd
-import base64
-
-from app import app, db
-from models import Pagamento
+from flask import Flask
 from flasgger import Swagger
 from prometheus_flask_exporter import PrometheusMetrics
 from prometheus_client import Counter
 from logging_config import get_logger
+from crudPagamento import pagamentos_bp
 
 logger = get_logger(__name__)
 
@@ -44,73 +40,8 @@ def after_request(response):
 
     return response
 
-@app.route('/pagamentos', methods=['POST'])
-def add_pagamento():
-    """
-    Registrar um novo pagamento
-    ---
-    tags:
-      - Pagamentos
-    parameters:
-      - in: body
-        name: body
-        required: true
-        description: Dados do pagamento a ser registrado
-        schema:
-          type: object
-          properties:
-            aluno_id:
-              type: integer
-              example: 1
-            data:
-              type: string
-              format: date
-              example: "2023-10-01"
-            valor_pago:
-              type: number
-              format: float
-              example: 150.50
-            forma_pagamento:
-              type: string
-              example: "Cartão de Crédito"
-    responses:
-      201:
-        description: Pagamento registrado com sucesso
-        schema:
-          type: object
-          properties:
-            message:
-              type: string
-              example: "Pagamento registrado com sucesso!"
-      400:
-        description: Erro na requisição
-    """
-    logger.info("Iniciando registro de um novo pagamento.")
-    conn = bd.create_connection()
-    if conn is None:
-        logger.error("Falha ao conectar ao banco de dados.")
-        return jsonify({"error": "Failed to connect to the database"}), 500
-
-    cursor = conn.cursor()
-    data = request.get_json()
-    try:
-        novo_pagamento = Pagamento(
-            aluno_id=data['aluno_id'],
-            data=data['data'],
-            valor_pago=data['valor_pago'],
-            forma_pagamento=data['forma_pagamento']
-        )
-        db.session.add(novo_pagamento)
-        db.session.commit()
-        logger.info("Pagamento registrado com sucesso.")
-        return jsonify({'message': 'Pagamento registrado com sucesso!'}), 201
-    except Exception as e:
-        logger.error(f"Erro ao registrar pagamento: {e}")
-        return jsonify({"error": str(e)}), 400
-    finally:
-        cursor.close()
-        conn.close()
-
+# Registrar o Blueprint
+app.register_blueprint(pagamentos_bp)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

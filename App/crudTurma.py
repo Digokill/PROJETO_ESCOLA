@@ -3,15 +3,11 @@ try:
 except ImportError as e:
     raise ImportError("O módulo 'psycopg2' não está instalado. Instale-o com 'pip install psycopg2-binary'.") from e
 
-from flask import Flask, request, jsonify
-import Util.bd as bd
-import base64
-
-from app import app, db
-from models import Turma
+from flask import Flask
 from prometheus_flask_exporter import PrometheusMetrics
 from prometheus_client import Counter
 from logging_config import get_logger
+from crudTurma import turmas_bp
 
 logger = get_logger(__name__)
 
@@ -47,67 +43,8 @@ def after_request(response):
 
     return response
 
-@app.route('/turmas', methods=['POST'])
-def add_turma():
-    """
-    Adicionar uma nova turma
-    ---
-    tags:
-      - Turmas
-    parameters:
-      - in: body
-        name: body
-        required: true
-        description: Dados da turma a ser adicionada
-        schema:
-          type: object
-          properties:
-            nome:
-              type: string
-              example: "Turma A"
-            professor_responsavel:
-              type: string
-              example: "Prof. João"
-            horario:
-              type: string
-              example: "08:00 - 12:00"
-    responses:
-      201:
-        description: Turma adicionada com sucesso
-        schema:
-          type: object
-          properties:
-            message:
-              type: string
-              example: "Turma adicionada com sucesso!"
-      400:
-        description: Erro na requisição
-    """
-    logger.info("Iniciando adição de uma nova turma.")
-    conn = bd.create_connection()
-    if conn is None:
-        logger.error("Falha ao conectar ao banco de dados.")
-        return jsonify({"error": "Failed to connect to the database"}), 500
-
-    cursor = conn.cursor()
-    data = request.get_json()
-    try:
-        nova_turma = Turma(
-            nome=data['nome'],
-            professor_responsavel=data['professor_responsavel'],
-            horario=data['horario']
-        )
-        db.session.add(nova_turma)
-        db.session.commit()
-        logger.info("Turma adicionada com sucesso.")
-        return jsonify({'message': 'Turma adicionada com sucesso!'}), 201
-    except Exception as e:
-        logger.error(f"Erro ao adicionar turma: {e}")
-        return jsonify({"error": str(e)}), 400
-    finally:
-        cursor.close()
-        conn.close()
-
+# Registro do Blueprint
+app.register_blueprint(turmas_bp)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

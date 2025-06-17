@@ -58,9 +58,11 @@ swagger = Swagger(app, template={
 
 # Importar o blueprint após a inicialização do aplicativo
 from crudAluno import alunos_bp
+from crudProfessor import professores_bp
 
-# Registrar o Blueprint
+# Registrar os Blueprints
 app.register_blueprint(alunos_bp)
+app.register_blueprint(professores_bp)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
