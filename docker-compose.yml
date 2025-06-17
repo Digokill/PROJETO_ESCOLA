@@ -32,8 +32,7 @@ services:
       - monitoring_network
 
   prometheus:
-    build:
-      context: ./prometheus
+    image: prom/prometheus:v2.41.0  # Alterado para uma versão específica
     container_name: prometheus
     ports:
       - "9090:9090"

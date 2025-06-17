@@ -1,53 +1,25 @@
+import psycopg2
 from flask import Blueprint, request, jsonify
-from models import Aluno
 from logging_config import get_logger
-
-# from app import app, db
-from models import Aluno
-from logging_config import get_logger
-
-# Configuração do Swagger
-# swagger = Swagger(app)
 
 # Definir o Blueprint
 alunos_bp = Blueprint('alunos', __name__)
-
-# # Configuração do Prometheus
-# metrics = PrometheusMetrics(app, default_labels={'app_name': 'flask_app'})
-
-# Métricas personalizadas para sucessos e erros
-# success_counter = Counter(
-#     'http_success_count', 'Contagem de respostas HTTP com sucesso',
-#     ['endpoint', 'method', 'status']
-# )
-
-# error_counter = Counter(
-#     'http_error_count', 'Contagem de respostas HTTP com erro',
-#     ['endpoint', 'method', 'status']
-# )
 
 logger = get_logger(__name__)
 
 logger.info("CRUD Aluno iniciado com sucesso.")
 
-# @app.after_request
-# def after_request(response):
-#     """
-#     Middleware para capturar os retornos de todos os endpoints.
-#     """
-#     endpoint = request.path
-#     method = request.method
-#     status = response.status_code
-
-#     if 200 <= status < 300:
-#         success_counter.labels(endpoint=endpoint, method=method, status=str(status)).inc()
-#     else:
-#         error_counter.labels(endpoint=endpoint, method=method, status=str(status)).inc()
-
-#     return response
-
-# Definir o Blueprint
-alunos_bp = Blueprint('alunos', __name__)
+def get_db_connection():
+    """
+    Retorna uma conexão com o banco de dados PostgreSQL.
+    """
+    return psycopg2.connect(
+        dbname="escola",
+        user="faat",
+        password="faat",
+        host="db",
+        port=5432
+    )
 
 @alunos_bp.route('/alunos', methods=['GET', 'POST'])
 def alunos():
@@ -56,18 +28,39 @@ def alunos():
     """
     if request.method == 'GET':
         logger.info("Listando todos os alunos.")
-        alunos = Aluno.query.all()
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT id, nome_completo, data_nascimento, turma_id FROM alunos")
+        alunos = cur.fetchall()
+        cur.close()
+        conn.close()
         return jsonify([
             {
-                "id": aluno.id,
-                "nome_completo": aluno.nome_completo,
-                "data_nascimento": aluno.data_nascimento,
-                "turma_id": aluno.turma_id
+                "id": aluno[0],
+                "nome_completo": aluno[1],
+                "data_nascimento": aluno[2],
+                "turma_id": aluno[3]
             } for aluno in alunos
         ]), 200
 
     if request.method == 'POST':
-        pass
+        logger.info("Adicionando um novo aluno.")
+        data = request.get_json()
+        try:
+            conn = get_db_connection()
+            cur = conn.cursor()
+            cur.execute(
+                "INSERT INTO alunos (nome_completo, data_nascimento, turma_id) VALUES (%s, %s, %s)",
+                (data['nome_completo'], data['data_nascimento'], data['turma_id'])
+            )
+            conn.commit()
+            cur.close()
+            conn.close()
+            logger.info("Aluno adicionado com sucesso.")
+            return jsonify({"message": "Aluno adicionado com sucesso!"}), 201
+        except Exception as e:
+            logger.error(f"Erro ao adicionar aluno: {e}")
+            return jsonify({"error": str(e)}), 400
 
 @alunos_bp.route('/alunos/<int:id>', methods=['GET'])
 def ler_aluno(id):
@@ -75,13 +68,18 @@ def ler_aluno(id):
     Endpoint para ler informações de um aluno pelo ID.
     """
     logger.info(f"Lendo informações do aluno com ID {id}.")
-    aluno = Aluno.query.get(id)
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT id, nome_completo, data_nascimento, turma_id FROM alunos WHERE id = %s", (id,))
+    aluno = cur.fetchone()
+    cur.close()
+    conn.close()
     if aluno:
         return jsonify({
-            "id": aluno.id,
-            "nome_completo": aluno.nome_completo,
-            "data_nascimento": aluno.data_nascimento,
-            "turma_id": aluno.turma_id
+            "id": aluno[0],
+            "nome_completo": aluno[1],
+            "data_nascimento": aluno[2],
+            "turma_id": aluno[3]
         }), 200
     else:
         logger.error(f"Aluno com ID {id} não encontrado.")
@@ -94,21 +92,21 @@ def atualizar_aluno(id):
     """
     logger.info(f"Atualizando informações do aluno com ID {id}.")
     data = request.get_json()
-    aluno = Aluno.query.get(id)
-    if aluno:
-        try:
-            aluno.nome_completo = data.get('nome_completo', aluno.nome_completo)
-            aluno.data_nascimento = data.get('data_nascimento', aluno.data_nascimento)
-            aluno.turma_id = data.get('turma_id', aluno.turma_id)
-            db.session.commit()
-            logger.info(f"Aluno com ID {id} atualizado com sucesso.")
-            return jsonify({"message": "Aluno atualizado com sucesso!"}), 200
-        except Exception as e:
-            logger.error(f"Erro ao atualizar aluno: {e}")
-            return jsonify({"error": str(e)}), 400
-    else:
-        logger.error(f"Aluno com ID {id} não encontrado.")
-        return jsonify({"error": "Aluno não encontrado"}), 404
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            "UPDATE alunos SET nome_completo = %s, data_nascimento = %s, turma_id = %s WHERE id = %s",
+            (data.get('nome_completo'), data.get('data_nascimento'), data.get('turma_id'), id)
+        )
+        conn.commit()
+        cur.close()
+        conn.close()
+        logger.info(f"Aluno com ID {id} atualizado com sucesso.")
+        return jsonify({"message": "Aluno atualizado com sucesso!"}), 200
+    except Exception as e:
+        logger.error(f"Erro ao atualizar aluno: {e}")
+        return jsonify({"error": str(e)}), 400
 
 @alunos_bp.route('/alunos/<int:id>', methods=['DELETE'])
 def deletar_aluno(id):
@@ -116,19 +114,18 @@ def deletar_aluno(id):
     Endpoint para deletar um aluno pelo ID.
     """
     logger.info(f"Deletando aluno com ID {id}.")
-    aluno = Aluno.query.get(id)
-    if aluno:
-        try:
-            db.session.delete(aluno)
-            db.session.commit()
-            logger.info(f"Aluno com ID {id} deletado com sucesso.")
-            return jsonify({"message": "Aluno deletado com sucesso!"}), 200
-        except Exception as e:
-            logger.error(f"Erro ao deletar aluno: {e}")
-            return jsonify({"error": str(e)}), 400
-    else:
-        logger.error(f"Aluno com ID {id} não encontrado.")
-        return jsonify({"error": "Aluno não encontrado"}), 404
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("DELETE FROM alunos WHERE id = %s", (id,))
+        conn.commit()
+        cur.close()
+        conn.close()
+        logger.info(f"Aluno com ID {id} deletado com sucesso.")
+        return jsonify({"message": "Aluno deletado com sucesso!"}), 200
+    except Exception as e:
+        logger.error(f"Erro ao deletar aluno: {e}")
+        return jsonify({"error": str(e)}), 400
 
 @alunos_bp.route('/test-links', methods=['GET'])
 def test_links():
@@ -161,6 +158,3 @@ def test_links():
         "crudUsuario": "/usuarios"
     }
     return jsonify({"links": links}), 200
-
-# if __name__ == '__main__':
-#     app.run(host='0.0.0.0', port=5000, debug=True)
