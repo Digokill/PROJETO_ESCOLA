@@ -1,47 +1,102 @@
-from flask import Flask
-from flasgger import Swagger
-from prometheus_flask_exporter import PrometheusMetrics
-from prometheus_client import Counter
+import psycopg2
+from flask import Blueprint, request, jsonify
 from logging_config import get_logger
-from crudPresenca import presencas_bp
 
 logger = get_logger(__name__)
 
-app = Flask(__name__)
-swagger = Swagger(app)
+presencas_bp = Blueprint('presencas', __name__)
 
-# Registro do Blueprint
-app.register_blueprint(presencas_bp)
+logger.info("CRUD Presenca iniciado com sucesso.")
 
-# Configuração do Prometheus
-metrics = PrometheusMetrics(app, default_labels={'app_name': 'flask_app'})
+def get_db_connection():
+    return psycopg2.connect(
+        dbname="escola",
+        user="faat",
+        password="faat",
+        host="db",
+        port=5432
+    )
 
-# Métricas personalizadas para sucessos e erros
-success_counter = Counter(
-    'http_success_count', 'Contagem de respostas HTTP com sucesso',
-    ['endpoint', 'method', 'status']
-)
+# Exemplo de endpoint para registrar presença
+@presencas_bp.route('/presencas', methods=['POST'])
+def registrar_presenca():
+    logger.info("Registrando presença.")
+    data = request.get_json()
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            'INSERT INTO "Presenca" (id_aluno, data_presenca, presente) VALUES (%s, %s, %s)',
+            (data['id_aluno'], data['data_presenca'], data['presente'])
+        )
+        conn.commit()
+        cur.close()
+        conn.close()
+        logger.info("Presença registrada com sucesso.")
+        return jsonify({"message": "Presença registrada com sucesso!"}), 201
+    except Exception as e:
+        logger.error(f"Erro ao registrar presença: {e}")
+        return jsonify({"error": str(e)}), 400
 
-error_counter = Counter(
-    'http_error_count', 'Contagem de respostas HTTP com erro',
-    ['endpoint', 'method', 'status']
-)
+# Exemplo de endpoint para consultar presença de um aluno
+@presencas_bp.route('/presencas/<int:id_aluno>', methods=['GET'])
+def consultar_presenca(id_aluno):
+    logger.info(f"Consultando presenças do aluno {id_aluno}.")
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT id_presenca, data_presenca, presente FROM "Presenca" WHERE id_aluno = %s', (id_aluno,))
+        presencas = cur.fetchall()
+        cur.close()
+        conn.close()
+        return jsonify([
+            {
+                "id_presenca": p[0],
+                "data_presenca": p[1],
+                "presente": p[2]
+            } for p in presencas
+        ]), 200
+    except Exception as e:
+        logger.error(f"Erro ao consultar presenças: {e}")
+        return jsonify({"error": str(e)}), 400
 
-@app.after_request
-def after_request(response):
-    """
-    Middleware para capturar os retornos de todos os endpoints.
-    """
-    endpoint = request.path
-    method = request.method
-    status = response.status_code
-
-    if 200 <= status < 300:
-        success_counter.labels(endpoint=endpoint, method=method, status=str(status)).inc()
-    else:
-        error_counter.labels(endpoint=endpoint, method=method, status=str(status)).inc()
-
-    return response
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+@presencas_bp.route('/presencas', methods=['GET', 'POST'])
+def presencas():
+    if request.method == 'GET':
+        logger.info("Listando todas as presenças.")
+        try:
+            conn = get_db_connection()
+            cur = conn.cursor()
+            cur.execute('SELECT id_presenca, id_aluno, data_presenca, presente FROM "Presenca"')
+            presencas = cur.fetchall()
+            cur.close()
+            conn.close()
+            return jsonify([
+                {
+                    "id_presenca": p[0],
+                    "id_aluno": p[1],
+                    "data_presenca": p[2],
+                    "presente": p[3]
+                } for p in presencas
+            ]), 200
+        except Exception as e:
+            logger.error(f"Erro ao listar presenças: {e}")
+            return jsonify({"error": str(e)}), 400
+    if request.method == 'POST':
+        logger.info("Registrando presença.")
+        data = request.get_json()
+        try:
+            conn = get_db_connection()
+            cur = conn.cursor()
+            cur.execute(
+                'INSERT INTO "Presenca" (id_aluno, data_presenca, presente) VALUES (%s, %s, %s)',
+                (data['id_aluno'], data['data_presenca'], data['presente'])
+            )
+            conn.commit()
+            cur.close()
+            conn.close()
+            logger.info("Presença registrada com sucesso.")
+            return jsonify({"message": "Presença registrada com sucesso!"}), 201
+        except Exception as e:
+            logger.error(f"Erro ao registrar presença: {e}")
+            return jsonify({"error": str(e)}), 400

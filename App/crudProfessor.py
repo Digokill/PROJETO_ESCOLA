@@ -67,7 +67,7 @@ def professores():
         logger.info("Listando todos os professores.")
         conn = get_db_connection()
         cur = conn.cursor()
-        cur.execute("SELECT id_professor, nome_completo, email, telefone FROM professor")
+        cur.execute('SELECT id_professor, nome_completo, email, telefone FROM "Professor"')
         professores = cur.fetchall()
         cur.close()
         conn.close()
@@ -93,7 +93,7 @@ def professores():
             conn = get_db_connection()
             cur = conn.cursor()
             cur.execute(
-                "INSERT INTO professor (nome_completo, email, telefone) VALUES (%s, %s, %s)",
+                'INSERT INTO "Professor" (nome_completo, email, telefone) VALUES (%s, %s, %s)',
                 (data['nome_completo'], data['email'], data['telefone'])
             )
             conn.commit()
@@ -120,7 +120,7 @@ def ler_professor(id):
     logger.info(f"Lendo informações do professor com ID {id}.")
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT id_professor, nome_completo, email, telefone FROM professor WHERE id_professor = %s", (id,))
+    cur.execute('SELECT id_professor, nome_completo, email, telefone FROM "Professor" WHERE id_professor = %s', (id,))
     professor = cur.fetchone()
     cur.close()
     conn.close()
@@ -146,7 +146,7 @@ def atualizar_professor(id):
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute(
-            "UPDATE professor SET nome_completo = %s, email = %s, telefone = %s WHERE id_professor = %s",
+            'UPDATE "Professor" SET nome_completo = %s, email = %s, telefone = %s WHERE id_professor = %s',
             (data.get('nome_completo'), data.get('email'), data.get('telefone'), id)
         )
         conn.commit()
@@ -174,7 +174,7 @@ def deletar_professor(id):
     try:
         conn = get_db_connection()
         cur = conn.cursor()
-        cur.execute("DELETE FROM professor WHERE id_professor = %s", (id,))
+        cur.execute('DELETE FROM "Professor" WHERE id_professor = %s', (id,))
         conn.commit()
         cur.close()
         conn.close()

@@ -21,29 +21,31 @@ def get_db_connection():
         port=5432
     )
 
-@notas_bp.route('/notas', methods=['POST'])
-def registrar_nota():
-    """
-    Registrar uma nova nota para um aluno em uma disciplina.
-    """
-    logger.info("Iniciando registro de nota.")
-    conn = get_db_connection()
-    cur = conn.cursor()
-    data = request.get_json()
-    try:
-        cur.execute(
-            "INSERT INTO notas (id_aluno, id_disciplina, nota, data_lancamento) VALUES (%s, %s, %s, %s)",
-            (data['id_aluno'], data['id_disciplina'], data['nota'], data['data_lancamento'])
-        )
-        conn.commit()
-        logger.info("Nota registrada com sucesso.")
-        return jsonify({"message": "Nota registrada com sucesso!"}), 201
-    except Exception as e:
-        logger.error(f"Erro ao registrar nota: {e}")
-        return jsonify({"error": str(e)}), 400
-    finally:
-        cur.close()
-        conn.close()
+@notas_bp.route('/notas', methods=['GET', 'POST'])
+def notas():
+    if request.method == 'GET':
+        logger.info("Listando todas as notas.")
+        try:
+            conn = get_db_connection()
+            cur = conn.cursor()
+            cur.execute('SELECT id_nota, id_aluno, id_disciplina, nota, data_lancamento FROM "Nota"')
+            notas = cur.fetchall()
+            cur.close()
+            conn.close()
+            return jsonify([
+                {
+                    "id_nota": n[0],
+                    "id_aluno": n[1],
+                    "id_disciplina": n[2],
+                    "nota": n[3],
+                    "data_lancamento": n[4]
+                } for n in notas
+            ]), 200
+        except Exception as e:
+            logger.error(f"Erro ao listar notas: {e}")
+            return jsonify({"error": str(e)}), 400
+    if request.method == 'POST':
+        return registrar_nota()
 
 @notas_bp.route('/notas/<int:id_aluno>', methods=['GET'])
 def consultar_notas(id_aluno):
@@ -53,7 +55,7 @@ def consultar_notas(id_aluno):
     logger.info(f"Consultando notas do aluno com ID {id_aluno}.")
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT id_nota, id_disciplina, nota, data_lancamento FROM notas WHERE id_aluno = %s", (id_aluno,))
+    cur.execute('SELECT id_nota, id_disciplina, nota, data_lancamento FROM "Nota" WHERE id_aluno = %s', (id_aluno,))
     notas = cur.fetchall()
     cur.close()
     conn.close()
@@ -78,7 +80,7 @@ def atualizar_nota(id_nota):
     data = request.get_json()
     try:
         cur.execute(
-            "UPDATE notas SET nota = %s, data_lancamento = %s WHERE id_nota = %s",
+            'UPDATE "Nota" SET nota = %s, data_lancamento = %s WHERE id_nota = %s',
             (data.get('nota'), data.get('data_lancamento'), id_nota)
         )
         conn.commit()
@@ -100,7 +102,7 @@ def deletar_nota(id_nota):
     conn = get_db_connection()
     cur = conn.cursor()
     try:
-        cur.execute("DELETE FROM notas WHERE id_nota = %s", (id_nota,))
+        cur.execute('DELETE FROM "Nota" WHERE id_nota = %s', (id_nota,))
         conn.commit()
         logger.info("Nota deletada com sucesso.")
         return jsonify({"message": "Nota deletada com sucesso!"}), 200

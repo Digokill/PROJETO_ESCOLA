@@ -59,10 +59,28 @@ swagger = Swagger(app, template={
 # Importar o blueprint após a inicialização do aplicativo
 from crudAluno import alunos_bp
 from crudProfessor import professores_bp
+from crudDisciplina import disciplinas_bp
+from crudTurma import turmas_bp
+from crudMatricula import matriculas_bp
+from crudNota import notas_bp
+from crudUsuario import usuarios_bp
+from crudPresenca import presencas_bp
+from crudAtividade import atividades_bp
+from crudAtividade_Aluno import atividades_alunos_bp
+from crudPagamento import pagamentos_bp
 
 # Registrar os Blueprints
 app.register_blueprint(alunos_bp)
 app.register_blueprint(professores_bp)
+app.register_blueprint(disciplinas_bp)
+app.register_blueprint(turmas_bp)
+app.register_blueprint(matriculas_bp)
+app.register_blueprint(notas_bp)
+app.register_blueprint(usuarios_bp)
+app.register_blueprint(presencas_bp)
+app.register_blueprint(atividades_bp)
+app.register_blueprint(atividades_alunos_bp)
+app.register_blueprint(pagamentos_bp)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
