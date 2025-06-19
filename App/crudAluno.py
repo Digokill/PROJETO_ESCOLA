@@ -183,3 +183,120 @@ def test_links():
         "crudUsuario": "/usuarios"
     }
     return jsonify({"links": links}), 200
+
+@alunos_bp.route('/alunos/nome/<nome_completo>', methods=['GET'])
+def buscar_aluno_por_nome(nome_completo):
+    """
+    Endpoint para buscar alunos pelo nome completo.
+    """
+    logger.info(f"Buscando alunos com nome_completo: {nome_completo}")
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT id_aluno, nome_completo, data_nascimento, id_turma, informacoes_adicionais, email_responsavel, telefone_responsavel, nome_responsavel FROM "Alunos" WHERE nome_completo = %s', (nome_completo,))
+        alunos = cur.fetchall()
+        cur.close()
+        conn.close()
+        return jsonify([
+            {
+                "id_aluno": a[0],
+                "nome_completo": a[1],
+                "data_nascimento": a[2],
+                "id_turma": a[3],
+                "informacoes_adicionais": a[4],
+                "email_responsavel": a[5],
+                "telefone_responsavel": a[6],
+                "nome_responsavel": a[7]
+            } for a in alunos
+        ]), 200
+    except Exception as e:
+        logger.error(f"Erro ao buscar aluno por nome: {e}")
+        return jsonify({"error": str(e)}), 400
+
+@alunos_bp.route('/alunos/id/<int:id_aluno>', methods=['GET'])
+def buscar_aluno_por_id(id_aluno):
+    """
+    Endpoint para buscar um aluno pelo ID.
+    """
+    logger.info(f"Buscando aluno com id_aluno: {id_aluno}")
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT id_aluno, nome_completo, data_nascimento, id_turma, informacoes_adicionais, email_responsavel, telefone_responsavel, nome_responsavel FROM "Alunos" WHERE id_aluno = %s', (id_aluno,))
+        aluno = cur.fetchone()
+        cur.close()
+        conn.close()
+        if aluno:
+            return jsonify({
+                "id_aluno": aluno[0],
+                "nome_completo": aluno[1],
+                "data_nascimento": aluno[2],
+                "id_turma": aluno[3],
+                "informacoes_adicionais": aluno[4],
+                "email_responsavel": aluno[5],
+                "telefone_responsavel": aluno[6],
+                "nome_responsavel": aluno[7]
+            }), 200
+        else:
+            return jsonify({"error": "Aluno não encontrado"}), 404
+    except Exception as e:
+        logger.error(f"Erro ao buscar aluno por id: {e}")
+        return jsonify({"error": str(e)}), 400
+
+@alunos_bp.route('/alunos/responsavel/<nome_responsavel>', methods=['GET'])
+def buscar_aluno_por_responsavel(nome_responsavel):
+    """
+    Endpoint para buscar alunos pelo nome do responsável.
+    """
+    logger.info(f"Buscando alunos com nome_responsavel: {nome_responsavel}")
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT id_aluno, nome_completo, data_nascimento, id_turma, informacoes_adicionais, email_responsavel, telefone_responsavel, nome_responsavel FROM "Alunos" WHERE nome_responsavel = %s', (nome_responsavel,))
+        alunos = cur.fetchall()
+        cur.close()
+        conn.close()
+        return jsonify([
+            {
+                "id_aluno": a[0],
+                "nome_completo": a[1],
+                "data_nascimento": a[2],
+                "id_turma": a[3],
+                "informacoes_adicionais": a[4],
+                "email_responsavel": a[5],
+                "telefone_responsavel": a[6],
+                "nome_responsavel": a[7]
+            } for a in alunos
+        ]), 200
+    except Exception as e:
+        logger.error(f"Erro ao buscar aluno por nome_responsavel: {e}")
+        return jsonify({"error": str(e)}), 400
+
+@alunos_bp.route('/alunos/data_nascimento/<data_nascimento>', methods=['GET'])
+def buscar_aluno_por_data_nascimento(data_nascimento):
+    """
+    Endpoint para buscar alunos pela data de nascimento.
+    """
+    logger.info(f"Buscando alunos com data_nascimento: {data_nascimento}")
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT id_aluno, nome_completo, data_nascimento, id_turma, informacoes_adicionais, email_responsavel, telefone_responsavel, nome_responsavel FROM "Alunos" WHERE data_nascimento = %s', (data_nascimento,))
+        alunos = cur.fetchall()
+        cur.close()
+        conn.close()
+        return jsonify([
+            {
+                "id_aluno": a[0],
+                "nome_completo": a[1],
+                "data_nascimento": a[2],
+                "id_turma": a[3],
+                "informacoes_adicionais": a[4],
+                "email_responsavel": a[5],
+                "telefone_responsavel": a[6],
+                "nome_responsavel": a[7]
+            } for a in alunos
+        ]), 200
+    except Exception as e:
+        logger.error(f"Erro ao buscar aluno por data_nascimento: {e}")
+        return jsonify({"error": str(e)}), 400

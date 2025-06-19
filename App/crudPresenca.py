@@ -100,3 +100,47 @@ def presencas():
         except Exception as e:
             logger.error(f"Erro ao registrar presença: {e}")
             return jsonify({"error": str(e)}), 400
+
+@presencas_bp.route('/presencas/aluno/<int:id_aluno>', methods=['GET'])
+def presencas_por_aluno(id_aluno):
+    logger.info(f"Listando presenças do aluno {id_aluno}.")
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT id_presenca, id_aluno, data_presenca, presente FROM "Presenca" WHERE id_aluno = %s', (id_aluno,))
+        presencas = cur.fetchall()
+        cur.close()
+        conn.close()
+        return jsonify([
+            {
+                "id_presenca": p[0],
+                "id_aluno": p[1],
+                "data_presenca": p[2],
+                "presente": p[3]
+            } for p in presencas
+        ]), 200
+    except Exception as e:
+        logger.error(f"Erro ao listar presenças do aluno: {e}")
+        return jsonify({"error": str(e)}), 400
+
+@presencas_bp.route('/presencas/data/<data_presenca>', methods=['GET'])
+def presencas_por_data(data_presenca):
+    logger.info(f"Listando presenças na data {data_presenca}.")
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT id_presenca, id_aluno, data_presenca, presente FROM "Presenca" WHERE data_presenca = %s', (data_presenca,))
+        presencas = cur.fetchall()
+        cur.close()
+        conn.close()
+        return jsonify([
+            {
+                "id_presenca": p[0],
+                "id_aluno": p[1],
+                "data_presenca": p[2],
+                "presente": p[3]
+            } for p in presencas
+        ]), 200
+    except Exception as e:
+        logger.error(f"Erro ao listar presenças por data: {e}")
+        return jsonify({"error": str(e)}), 400

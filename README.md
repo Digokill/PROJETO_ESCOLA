@@ -62,3 +62,18 @@ docker compose down
 
 ## Contribuição
 Sinta-se à vontade para contribuir com melhorias no projeto. Envie um pull request ou abra uma issue.
+
+## Rotas de Pesquisa
+- **Pesquisa de professor utilizando id**: http://localhost:5000/professores/4
+- **Pesquisa de disciplina**: http://localhost:5000/disciplinas
+- **Pesquisa de turma utilizando id do professor**: http://localhost:5000/turmas/professor/4
+- **Pesquisa de turma utilizando id da turma**: http://localhost:5000/turmas/2
+- **Pesquisa de turma utilizando horario**: http://localhost:5000/turmas//horario/Segunda a Sexta, 07:00-10:30
+- **Pesquisa de aluno utilizando nome do aluno**: http://localhost:5000/alunos/nome/João da Silva
+- **Pesquisa de aluno utilizando nome do responsavel**: http://localhost:5000/alunos/responsavel/Maria da Silva
+- **Pesquisa de aluno utilizando o id do aluno**: http://localhost:5000/alunos/id/3
+- **Pesquisa de presenca utilizando id do aluno**: http://localhost:5000/presencas/aluno/1
+- **Pesquisa de aluno utilizando data da presenca**: http://localhost:5000/presencas/data/Thu, 30 Jan 2025 00:00:00 GMT
+- **Pesquisa de nota utilizando id do aluno**: http://localhost:5000/notas/3
+- **Pesquisa de pagamento utilizando status**: http://localhost:5000/pagamentos/status/Pago
+- **Pesquisa de pagamento utilizando id do aluno**: http://localhost:5000/pagamentos/aluno/1

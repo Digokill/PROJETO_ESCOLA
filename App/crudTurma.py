@@ -129,3 +129,76 @@ def deletar_turma(id):
 @turmas_bp.route('/turma/<int:id>', methods=['DELETE'])
 def deletar_turma_alias(id):
     return deletar_turma(id)
+
+@turmas_bp.route('/turmas/professor/<int:id_professor>', methods=['GET'])
+def turmas_por_professor(id_professor):
+    logger.info(f"Listando turmas do professor {id_professor}.")
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT id_turma, nome_turma, id_professor, horario, ano_letivo, id_disciplina FROM "Turma" WHERE id_professor = %s', (id_professor,))
+        turmas = cur.fetchall()
+        cur.close()
+        conn.close()
+        return jsonify([
+            {
+                "id_turma": t[0],
+                "nome_turma": t[1],
+                "id_professor": t[2],
+                "horario": t[3],
+                "ano_letivo": t[4],
+                "id_disciplina": t[5]
+            } for t in turmas
+        ]), 200
+    except Exception as e:
+        logger.error(f"Erro ao listar turmas do professor: {e}")
+        return jsonify({"error": str(e)}), 400
+
+@turmas_bp.route('/turmas/<int:id_turma>', methods=['GET'])
+def turma_por_id(id_turma):
+    logger.info(f"Buscando turma com id {id_turma}.")
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT id_turma, nome_turma, id_professor, horario, ano_letivo, id_disciplina FROM "Turma" WHERE id_turma = %s', (id_turma,))
+        turma = cur.fetchone()
+        cur.close()
+        conn.close()
+        if turma:
+            return jsonify({
+                "id_turma": turma[0],
+                "nome_turma": turma[1],
+                "id_professor": turma[2],
+                "horario": turma[3],
+                "ano_letivo": turma[4],
+                "id_disciplina": turma[5]
+            }), 200
+        else:
+            return jsonify({"error": "Turma não encontrada"}), 404
+    except Exception as e:
+        logger.error(f"Erro ao buscar turma por id: {e}")
+        return jsonify({"error": str(e)}), 400
+
+@turmas_bp.route('/turmas/horario/<horario>', methods=['GET'])
+def turmas_por_horario(horario):
+    logger.info(f"Listando turmas com horário {horario}.")
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT id_turma, nome_turma, id_professor, horario, ano_letivo, id_disciplina FROM "Turma" WHERE horario = %s', (horario,))
+        turmas = cur.fetchall()
+        cur.close()
+        conn.close()
+        return jsonify([
+            {
+                "id_turma": t[0],
+                "nome_turma": t[1],
+                "id_professor": t[2],
+                "horario": t[3],
+                "ano_letivo": t[4],
+                "id_disciplina": t[5]
+            } for t in turmas
+        ]), 200
+    except Exception as e:
+        logger.error(f"Erro ao listar turmas por horário: {e}")
+        return jsonify({"error": str(e)}), 400
