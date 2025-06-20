@@ -1,7 +1,9 @@
 flask_sqlalchemy
 flasgger
 prometheus-flask-exporter
-psycopg2
+psycopg2-binary
 PyYAML
 pytest
+pandas
+openpyxl
 # ...adicione outras dependências aqui, se necessário...

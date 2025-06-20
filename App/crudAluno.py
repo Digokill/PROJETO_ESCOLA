@@ -1,6 +1,7 @@
 import psycopg2
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_file
 from logging_config import get_logger
+import pandas as pd
 
 # Definir o Blueprint
 alunos_bp = Blueprint('alunos', __name__)
@@ -299,4 +300,26 @@ def buscar_aluno_por_data_nascimento(data_nascimento):
         ]), 200
     except Exception as e:
         logger.error(f"Erro ao buscar aluno por data_nascimento: {e}")
+        return jsonify({"error": str(e)}), 400
+
+@alunos_bp.route('/alunos/exportar_excel', methods=['GET'])
+def exportar_alunos_excel():
+    """
+    Endpoint para exportar relatório de alunos em Excel.
+    """
+    logger.info("Exportando relatório de alunos para Excel.")
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT id_aluno, nome_completo, data_nascimento, id_turma, informacoes_adicionais, email_responsavel, telefone_responsavel, nome_responsavel FROM "Alunos"')
+        alunos = cur.fetchall()
+        columns = ["id_aluno", "nome_completo", "data_nascimento", "id_turma", "informacoes_adicionais", "email_responsavel", "telefone_responsavel", "nome_responsavel"]
+        df = pd.DataFrame(alunos, columns=columns)
+        file_path = "alunos_relatorio.xlsx"
+        df.to_excel(file_path, index=False)
+        cur.close()
+        conn.close()
+        return send_file(file_path, as_attachment=True)
+    except Exception as e:
+        logger.error(f"Erro ao exportar alunos para Excel: {e}")
         return jsonify({"error": str(e)}), 400

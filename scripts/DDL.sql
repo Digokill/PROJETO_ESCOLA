@@ -171,3 +171,24 @@ ALTER TABLE "Nota" ADD FOREIGN KEY ("id_disciplina") REFERENCES "Disciplina" ("i
 
 -- Um professor pode estar associado a um usuário no sistema (1:1).
 ALTER TABLE "Usuario" ADD FOREIGN KEY ("id_professor") REFERENCES "Professor" ("id_professor");
+
+-- Ajuste de restrições de chave estrangeira para garantir integridade referencial
+ALTER TABLE "Pagamento"
+DROP CONSTRAINT "Pagamento_id_aluno_fkey",
+ADD CONSTRAINT "Pagamento_id_aluno_fkey"
+FOREIGN KEY (id_aluno) REFERENCES "Alunos"(id_aluno) ON DELETE CASCADE;
+
+ALTER TABLE "Presenca"
+DROP CONSTRAINT "Presenca_id_aluno_fkey",
+ADD CONSTRAINT "Presenca_id_aluno_fkey"
+FOREIGN KEY (id_aluno) REFERENCES "Alunos"(id_aluno) ON DELETE CASCADE;
+
+ALTER TABLE "Atividade_Aluno"
+DROP CONSTRAINT "Atividade_Aluno_id_aluno_fkey",
+ADD CONSTRAINT "Atividade_Aluno_id_aluno_fkey"
+FOREIGN KEY (id_aluno) REFERENCES "Alunos"(id_aluno) ON DELETE CASCADE;
+
+ALTER TABLE "Nota"
+DROP CONSTRAINT "Nota_id_aluno_fkey",
+ADD CONSTRAINT "Nota_id_aluno_fkey"
+FOREIGN KEY (id_aluno) REFERENCES "Alunos"(id_aluno) ON DELETE CASCADE;
