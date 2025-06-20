@@ -6,4 +6,5 @@ PyYAML
 pytest
 pandas
 openpyxl
+bcrypt
 # ...adicione outras dependências aqui, se necessário...

@@ -1,6 +1,7 @@
 import psycopg2
 from flask import Blueprint, request, jsonify
 from logging_config import get_logger
+import bcrypt
 
 # Definir o Blueprint
 usuarios_bp = Blueprint('usuarios', __name__)
@@ -49,16 +50,18 @@ def usuarios():
 
 def add_usuario():
     """
-    Adicionar um novo usuário.
+    Adicionar um novo usuário com senha criptografada.
     """
     logger.info("Iniciando adição de um novo usuário.")
     conn = get_db_connection()
     cur = conn.cursor()
     data = request.get_json()
     try:
+        senha = data['senha']
+        senha_hash = bcrypt.hashpw(senha.encode('utf-8'), bcrypt.gensalt())
         cur.execute(
             'INSERT INTO "Usuario" (login, senha, nivel_acesso, id_professor) VALUES (%s, %s, %s, %s)',
-            (data['login'], data['senha'], data['nivel_acesso'], data.get('id_professor'))
+            (data['login'], senha_hash.decode('utf-8'), data['nivel_acesso'], data.get('id_professor'))
         )
         conn.commit()
         logger.info("Usuário adicionado com sucesso.")
@@ -93,3 +96,26 @@ def buscar_usuario_por_login(login):
     except Exception as e:
         logger.error(f"Erro ao buscar usuário por login: {e}")
         return jsonify({"error": str(e)}), 400
+
+@usuarios_bp.route('/usuarios/login', methods=['POST'])
+def login_usuario():
+    data = request.get_json()
+    login = data.get('login')
+    senha = data.get('senha')
+    if not login or not senha:
+        return jsonify({"error": "Login e senha são obrigatórios."}), 400
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT senha, nivel_acesso FROM "Usuario" WHERE login = %s', (login,))
+        user = cur.fetchone()
+        cur.close()
+        conn.close()
+        if user and bcrypt.checkpw(senha.encode('utf-8'), user[0].encode('utf-8')):
+            return jsonify({"message": "Login realizado com sucesso!", "nivel_acesso": user[1]}), 200
+        else:
+            return jsonify({"error": "Login ou senha inválidos."}), 401
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+

@@ -79,7 +79,74 @@ Sinta-se à vontade para contribuir com melhorias no projeto. Envie um pull requ
 - **Pesquisa de pagamento utilizando id do aluno**: http://localhost:5000/pagamentos/aluno/1
 - **Pesquisa de criação de relatório do aluno**: http://localhost:5000/alunos/exportar_excel
 - **Pesquisa de criação de relatório de presença do aluno**: http://localhost:5000/presencas/exportar_excel
-- **Pesquisa de criação de relatório do aluno**: 
-- **Pesquisa de criação de relatório do aluno**: 
-- **Pesquisa de criação de relatório do aluno**: 
-- **Pesquisa de criação de relatório do aluno**: 
+- **Para logiin de Usuario**: http://localhost:5000/usuarios/login 
+
+
+
+## Exemplos de Json e ordem para teste
+
+- **Professor**: {
+  "nome_completo": "João da Silva",
+  "email": "joao.silva@email.com",
+  "telefone": "(11) 91234-5678",
+  "login": "joaosilva",
+  "senha": "senhaSegura123"
+}
+- **Disciplina**: {
+  "nome_disciplina": "Matemática",
+  "codigo": "MAT101",
+  "carga_horaria": 80
+}
+- **Turma**: {
+  "nome_turma": "1º Ano A",
+  "id_professor": 1,
+  "horario": "Manhã",
+  "ano_letivo": 2025,
+  "id_disciplina": 2
+}
+- **Alunos**: {
+  "nome_completo": "Maria Souza",
+  "data_nascimento": "2012-03-15",
+  "id_turma": 1,
+  "informacoes_adicionais": "Alergia a leite",
+  "email_responsavel": "responsavel.maria@email.com",
+  "telefone_responsavel": "(11) 99999-8888",
+  "nome_responsavel": "João Souza"
+}
+- **Atividade**: {
+  "descricao": "Prova de Matemática",
+  "data_realizacao": "2025-06-30",
+  "nome_turma": "1º Ano A"
+}
+- **Atividade_Aluno**: {
+  "id_atividade": 2,
+  "id_aluno": 5
+}
+- **Notas**: {
+  "id_aluno": 3,
+  "id_disciplina": 1,
+  "nota": 8.5,
+  "data_lancamento": "2025-06-20"
+} 
+
+- **Presença**: {
+  "id_aluno": 3,
+  "data_presenca": "2025-06-20",
+  "presente": true
+}
+
+- **Pagamento**: {
+  "id_aluno": 3,
+  "data_pagamento": "2025-06-20",
+  "valor_pago": 350.00,
+  "forma_pagamento": "boleto",
+  "referencia": "Mensalidade Junho",
+  "status": "pago",
+  "vencimento": "2025-06-25"
+} 
+- **Usuario**: {
+  "login": "admin",
+  "senha": "minhasenha123",
+  "nivel_acesso": "administrador",
+  "id_professor": null
+}

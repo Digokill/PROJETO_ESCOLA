@@ -5,6 +5,7 @@ from flasgger import Swagger
 from prometheus_flask_exporter import PrometheusMetrics
 from prometheus_client import Counter
 from logging_config import get_logger
+import bcrypt
 
 logger = get_logger(__name__)
 
@@ -85,22 +86,30 @@ def professores():
         data = request.get_json()
 
         # Verificar se os campos obrigatórios estão presentes
-        if 'nome_completo' not in data or 'email' not in data or 'telefone' not in data:
+        if 'nome_completo' not in data or 'email' not in data or 'telefone' not in data or 'login' not in data or 'senha' not in data:
             logger.error("Campos obrigatórios ausentes na requisição.")
-            return jsonify({"error": "Campos obrigatórios ausentes: 'nome_completo', 'email' e/ou 'telefone'"}), 400
+            return jsonify({"error": "Campos obrigatórios ausentes: 'nome_completo', 'email', 'telefone', 'login' e/ou 'senha'"}), 400
 
         try:
             conn = get_db_connection()
             cur = conn.cursor()
+            # Inserir professor
             cur.execute(
-                'INSERT INTO "Professor" (nome_completo, email, telefone) VALUES (%s, %s, %s)',
+                'INSERT INTO "Professor" (nome_completo, email, telefone) VALUES (%s, %s, %s) RETURNING id_professor',
                 (data['nome_completo'], data['email'], data['telefone'])
+            )
+            id_professor = cur.fetchone()[0]
+            # Inserir usuário vinculado ao professor
+            senha_hash = bcrypt.hashpw(data['senha'].encode('utf-8'), bcrypt.gensalt())
+            cur.execute(
+                'INSERT INTO "Usuario" (login, senha, nivel_acesso, id_professor) VALUES (%s, %s, %s, %s)',
+                (data['login'], senha_hash.decode('utf-8'), 'professor', id_professor)
             )
             conn.commit()
             cur.close()
             conn.close()
-            logger.info("Professor adicionado com sucesso.")
-            return jsonify({"message": "Professor adicionado com sucesso!"}), 201
+            logger.info("Professor e usuário criados com sucesso.")
+            return jsonify({"message": "Professor e usuário criados com sucesso!", "id_professor": id_professor}), 201
         except Exception as e:
             logger.error(f"Erro ao adicionar professor: {e}")
             return jsonify({"error": str(e)}), 400
@@ -195,3 +204,13 @@ app.register_blueprint(professores_bp)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+
+# Exemplo de corpo JSON para criação de professor:
+# {
+#   "nome_completo": "João da Silva",
+#   "email": "joao.silva@email.com",
+#   "telefone": "(11) 91234-5678",
+#   "disciplina": "Matemática",
+#   "login": "joaosilva",
+#   "senha": "senhaSegura123"
+# }
