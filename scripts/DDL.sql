@@ -192,3 +192,7 @@ ALTER TABLE "Nota"
 DROP CONSTRAINT "Nota_id_aluno_fkey",
 ADD CONSTRAINT "Nota_id_aluno_fkey"
 FOREIGN KEY (id_aluno) REFERENCES "Alunos"(id_aluno) ON DELETE CASCADE;
+
+-- Adicionando coluna "vencimento" à tabela "Pagamento"
+ALTER TABLE "Pagamento"
+ADD COLUMN vencimento DATE;

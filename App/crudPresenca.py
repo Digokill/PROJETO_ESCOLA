@@ -1,6 +1,7 @@
 import psycopg2
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_file
 from logging_config import get_logger
+import pandas as pd
 
 logger = get_logger(__name__)
 
@@ -143,4 +144,37 @@ def presencas_por_data(data_presenca):
         ]), 200
     except Exception as e:
         logger.error(f"Erro ao listar presenças por data: {e}")
+        return jsonify({"error": str(e)}), 400
+
+@presencas_bp.route('/presencas/exportar_excel', methods=['GET'])
+def exportar_presencas_excel():
+    logger.info("Exportando relatório de presenças para Excel com frequência semanal e mensal e nome do aluno.")
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('''
+            SELECT p.id_aluno, a.nome_completo, p.data_presenca, p.presente
+            FROM "Presenca" p
+            JOIN "Alunos" a ON p.id_aluno = a.id_aluno
+        ''')
+        presencas = cur.fetchall()
+        columns = ["id_aluno", "nome_completo", "data_presenca", "presente"]
+        df = pd.DataFrame(presencas, columns=columns)
+        df['data_presenca'] = pd.to_datetime(df['data_presenca'])
+        df_presentes = df[df['presente'] == True]
+        # Total de presenças por aluno
+        total_presencas = df_presentes.groupby(['id_aluno', 'nome_completo']).size().rename('total_presencas')
+        # Frequência semanal por aluno
+        freq_semanal = df_presentes.groupby(['id_aluno', 'nome_completo', df_presentes['data_presenca'].dt.isocalendar().week]).size().groupby(['id_aluno', 'nome_completo']).mean().rename('frequencia_semanal')
+        # Frequência mensal por aluno
+        freq_mensal = df_presentes.groupby(['id_aluno', 'nome_completo', df_presentes['data_presenca'].dt.month]).size().groupby(['id_aluno', 'nome_completo']).mean().rename('frequencia_mensal')
+        # Junta tudo em um DataFrame
+        relatorio = pd.concat([total_presencas, freq_semanal, freq_mensal], axis=1).reset_index()
+        file_path = "presencas_relatorio.xlsx"
+        relatorio.to_excel(file_path, index=False)
+        cur.close()
+        conn.close()
+        return send_file(file_path, as_attachment=True)
+    except Exception as e:
+        logger.error(f"Erro ao exportar presenças para Excel: {e}")
         return jsonify({"error": str(e)}), 400

@@ -77,3 +77,9 @@ Sinta-se à vontade para contribuir com melhorias no projeto. Envie um pull requ
 - **Pesquisa de nota utilizando id do aluno**: http://localhost:5000/notas/3
 - **Pesquisa de pagamento utilizando status**: http://localhost:5000/pagamentos/status/Pago
 - **Pesquisa de pagamento utilizando id do aluno**: http://localhost:5000/pagamentos/aluno/1
+- **Pesquisa de criação de relatório do aluno**: http://localhost:5000/alunos/exportar_excel
+- **Pesquisa de criação de relatório de presença do aluno**: http://localhost:5000/presencas/exportar_excel
+- **Pesquisa de criação de relatório do aluno**: 
+- **Pesquisa de criação de relatório do aluno**: 
+- **Pesquisa de criação de relatório do aluno**: 
+- **Pesquisa de criação de relatório do aluno**: 
