@@ -118,4 +118,36 @@ def login_usuario():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
+@usuarios_bp.route('/usuarios/<int:id>', methods=['PUT'])
+def atualizar_usuario(id):
+    """
+    Atualiza dados do usuário, incluindo a senha (criptografada) se enviada.
+    """
+    logger.info(f"Atualizando usuário com ID {id}.")
+    data = request.get_json()
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        # Atualiza login e nivel_acesso, se enviados
+        if 'login' in data or 'nivel_acesso' in data:
+            cur.execute(
+                'UPDATE "Usuario" SET login = COALESCE(%s, login), nivel_acesso = COALESCE(%s, nivel_acesso) WHERE id_usuario = %s',
+                (data.get('login'), data.get('nivel_acesso'), id)
+            )
+        # Atualiza senha, se enviada
+        if 'senha' in data and data['senha']:
+            senha_hash = bcrypt.hashpw(data['senha'].encode('utf-8'), bcrypt.gensalt())
+            cur.execute(
+                'UPDATE "Usuario" SET senha = %s WHERE id_usuario = %s',
+                (senha_hash.decode('utf-8'), id)
+            )
+        conn.commit()
+        cur.close()
+        conn.close()
+        logger.info(f"Usuário com ID {id} atualizado com sucesso.")
+        return jsonify({"message": "Usuário atualizado com sucesso!"}), 200
+    except Exception as e:
+        logger.error(f"Erro ao atualizar usuário: {e}")
+        return jsonify({"error": str(e)}), 400
+
 

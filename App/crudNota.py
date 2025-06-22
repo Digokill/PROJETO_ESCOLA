@@ -21,6 +21,28 @@ def get_db_connection():
         port=5432
     )
 
+def registrar_nota():
+    """
+    Registrar uma nova nota.
+    """
+    data = request.get_json()
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            'INSERT INTO "Nota" (id_aluno, id_disciplina, nota, data_lancamento) VALUES (%s, %s, %s, %s) RETURNING id_nota',
+            (data.get('id_aluno'), data.get('id_disciplina'), data.get('nota'), data.get('data_lancamento'))
+        )
+        id_nota = cur.fetchone()[0]
+        conn.commit()
+        cur.close()
+        conn.close()
+        logger.info("Nota registrada com sucesso.")
+        return jsonify({"message": "Nota registrada com sucesso!", "id_nota": id_nota}), 201
+    except Exception as e:
+        logger.error(f"Erro ao registrar nota: {e}")
+        return jsonify({"error": str(e)}), 400
+
 @notas_bp.route('/notas', methods=['GET', 'POST'])
 def notas():
     if request.method == 'GET':
@@ -46,6 +68,8 @@ def notas():
             return jsonify({"error": str(e)}), 400
     if request.method == 'POST':
         return registrar_nota()
+
+
 
 @notas_bp.route('/notas/<int:id_aluno>', methods=['GET'])
 def consultar_notas(id_aluno):

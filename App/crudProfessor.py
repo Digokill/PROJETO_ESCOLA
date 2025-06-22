@@ -154,10 +154,18 @@ def atualizar_professor(id):
     try:
         conn = get_db_connection()
         cur = conn.cursor()
+        # Atualiza dados do professor
         cur.execute(
             'UPDATE "Professor" SET nome_completo = %s, email = %s, telefone = %s WHERE id_professor = %s',
             (data.get('nome_completo'), data.get('email'), data.get('telefone'), id)
         )
+        # Se senha for informada, atualiza também a senha do usuário vinculado
+        if 'senha' in data and data['senha']:
+            senha_hash = bcrypt.hashpw(data['senha'].encode('utf-8'), bcrypt.gensalt())
+            cur.execute(
+                'UPDATE "Usuario" SET senha = %s WHERE id_professor = %s',
+                (senha_hash.decode('utf-8'), id)
+            )
         conn.commit()
         cur.close()
         conn.close()
