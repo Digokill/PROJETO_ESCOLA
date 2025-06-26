@@ -82,6 +82,7 @@ Sinta-se à vontade para contribuir com melhorias no projeto. Envie um pull requ
 - **Para login de Usuario**: http://localhost:5000/usuarios/login 
 
 
+# USAR O DDL PARA VER AS TABELAS por favor!
 
 ## Exemplos de Json e ordem para teste
 
