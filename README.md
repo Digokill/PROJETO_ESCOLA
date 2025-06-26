@@ -62,6 +62,14 @@ docker compose down
 
 ## Contribuição
 Sinta-se à vontade para contribuir com melhorias no projeto. Envie um pull request ou abra uma issue.
+## Acessar o BD DBEAVER
+
+dbname="escola",
+        user="faat",
+        password="faat",
+        host="localhost",
+        port=3001
+
 ## USE o Docker-compose (botão de play para rodar o serviço = run all service)
 ## Use o insomnia para testar as rotas abaixo. 
 ## Rotas de Pesquisa
