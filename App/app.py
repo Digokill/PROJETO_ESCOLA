@@ -8,8 +8,8 @@ import os
 app = Flask(__name__)
 
 # Carregar configurações do arquivo config.yaml
-with open('config.yaml', 'r') as config_file:
-    config = yaml.safe_load(config_file)
+with open('config.yaml', 'r') as config_file: #o R é para ler o arquivo
+    config = yaml.safe_load(config_file) # Converter YAML para objeto Python
 
 db_config = config['database']
 
@@ -35,7 +35,7 @@ def wait_for_db(host, port):
 # Esperar pelo banco de dados antes de inicializar o Flask
 wait_for_db(db_config['host'], db_config['port'])
 
-# Configuração do Swagger
+# Configuração do Swagger - Para  (Visualizar endpoints, métodos, parâmetros e respostas, testar rotas no navegador)
 swagger = Swagger(app, template={
     "swagger": "2.0",
     "info": {
@@ -56,7 +56,7 @@ swagger = Swagger(app, template={
     "produces": ["application/json"],
 })
 
-# Importar o blueprint após a inicialização do aplicativo
+# Importar o blueprint do flask (Modularidade dos CRUDS) após a inicialização do aplicativo
 from crudAluno import alunos_bp
 from crudProfessor import professores_bp
 from crudDisciplina import disciplinas_bp
@@ -69,7 +69,7 @@ from crudAtividade import atividades_bp
 from crudAtividade_Aluno import atividades_alunos_bp
 from crudPagamento import pagamentos_bp
 
-# Registrar os Blueprints
+# Registrar os Blueprints - integrar os CRUDs no aplicativo mãe
 app.register_blueprint(alunos_bp)
 app.register_blueprint(professores_bp)
 app.register_blueprint(disciplinas_bp)

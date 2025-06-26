@@ -104,7 +104,7 @@ def atualizar_disciplina(id):
 
 @disciplinas_bp.route('/disciplina/<int:id>', methods=['PUT'])
 def atualizar_disciplina_alias(id):
-    return atualizar_disciplina(id)
+    return atualizar_disciplina(id)#Permite usar outro nome para o endpoint, como /disciplina/<id> (Alias)
 
 @disciplinas_bp.route('/disciplinas/<int:id>', methods=['DELETE'])
 def deletar_disciplina(id):

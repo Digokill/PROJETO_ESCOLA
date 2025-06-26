@@ -1,3 +1,4 @@
+#Apenas para importar o arquivo de configuração do banco de dados (config.yaml) e obter as credenciais do banco de dados.
 import os
 import yaml
 

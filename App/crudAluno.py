@@ -1,4 +1,4 @@
-import psycopg2
+import psycopg2 # conectar e interagir com bancos de dados PostgreSQL
 from flask import Blueprint, request, jsonify, send_file
 from logging_config import get_logger
 import pandas as pd
@@ -30,9 +30,9 @@ def alunos():
     if request.method == 'GET':
         logger.info("Listando todos os alunos.")
         conn = get_db_connection()
-        cur = conn.cursor()
+        cur = conn.cursor() # Criar um cursor para executar comandos SQL (Create, Read, Update, Delete)
         cur.execute('SELECT id_aluno, nome_completo, data_nascimento, id_turma, informacoes_adicionais, email_responsavel, telefone_responsavel, nome_responsavel FROM "Alunos"')
-        alunos = cur.fetchall()
+        alunos = cur.fetchall() #lista de tuplas com os dados dos alunos
         cur.close()
         conn.close()
         return jsonify([
@@ -57,16 +57,16 @@ def alunos():
             cur.execute(
                 'INSERT INTO "Alunos" (nome_completo, data_nascimento, id_turma, informacoes_adicionais, email_responsavel, telefone_responsavel, nome_responsavel) VALUES (%s, %s, %s, %s, %s, %s, %s)',
                 (
-                    data['nome_completo'],
-                    data['data_nascimento'],
-                    data['id_turma'],
-                    data.get('informacoes_adicionais'),
-                    data.get('email_responsavel'),
-                    data.get('telefone_responsavel'),
-                    data.get('nome_responsavel')
+                    data['nome_completo'],#Obrigatório
+                    data['data_nascimento'],#Obrigatório
+                    data['id_turma'],#Obrigatório
+                    data.get('informacoes_adicionais'), #Opcional
+                    data.get('email_responsavel'),#Opcional
+                    data.get('telefone_responsavel'),#Opcional
+                    data.get('nome_responsavel')#Opcional
                 )
             )
-            conn.commit()
+            conn.commit() # Salvar as alterações no banco de dados
             cur.close()
             conn.close()
             logger.info("Aluno adicionado com sucesso.")
@@ -208,7 +208,7 @@ def buscar_aluno_por_nome(nome_completo):
                 "email_responsavel": a[5],
                 "telefone_responsavel": a[6],
                 "nome_responsavel": a[7]
-            } for a in alunos
+            } for a in alunos #Gera um loop dos alunos encontrados
         ]), 200
     except Exception as e:
         logger.error(f"Erro ao buscar aluno por nome: {e}")
@@ -314,7 +314,7 @@ def exportar_alunos_excel():
         cur.execute('SELECT id_aluno, nome_completo, data_nascimento, id_turma, informacoes_adicionais, email_responsavel, telefone_responsavel, nome_responsavel FROM "Alunos"')
         alunos = cur.fetchall()
         columns = ["id_aluno", "nome_completo", "data_nascimento", "id_turma", "informacoes_adicionais", "email_responsavel", "telefone_responsavel", "nome_responsavel"]
-        df = pd.DataFrame(alunos, columns=columns)
+        df = pd.DataFrame(alunos, columns=columns) #formato de tabela
         file_path = "alunos_relatorio.xlsx"
         df.to_excel(file_path, index=False)
         cur.close()

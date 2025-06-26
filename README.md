@@ -157,8 +157,8 @@ Sinta-se à vontade para contribuir com melhorias no projeto. Envie um pull requ
 
 - **professor**: {
   "nome_completo": "Faith Ribeiro",
-  "email": "Fé@gmail.com",
-  "telefone": "(21) 98888-7777",
+  "email": "Fés@gmail.com",
+  "telefone": "(21) 98887-7777",
   "login": "fe",
   "senha": "Forte456"
 }

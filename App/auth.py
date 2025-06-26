@@ -1,9 +1,9 @@
-import psycopg2
+import psycopg2 # conectar e interagir com bancos de dados PostgreSQL
 from flask import Blueprint, request, jsonify
 import bcrypt
-from logging_config import get_logger
+from logging_config import get_logger #Alertas e logs
 
-auth_bp = Blueprint('auth', __name__)
+auth_bp = Blueprint('auth', __name__) #Nome e modulo do Blueprint (uma forma de organizar o código da API em partes menores. Assim, tudo relacionado à autenticação (login e cadastro) fica separado do resto do sistema.)
 logger = get_logger(__name__)
 
 def get_db_connection():

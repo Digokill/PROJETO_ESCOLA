@@ -73,6 +73,8 @@ volumes:
   postgres_data:
   grafana_data:
 
+#Permite comunicação entre os serviços/containers
+# e isola a rede de monitoramento dos outros containers
 networks:
   monitoring_network:
     driver: bridge

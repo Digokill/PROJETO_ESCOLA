@@ -168,7 +168,7 @@ def exportar_presencas_excel():
         freq_semanal = df_presentes.groupby(['id_aluno', 'nome_completo', df_presentes['data_presenca'].dt.isocalendar().week]).size().groupby(['id_aluno', 'nome_completo']).mean().rename('frequencia_semanal')
         # Frequência mensal por aluno
         freq_mensal = df_presentes.groupby(['id_aluno', 'nome_completo', df_presentes['data_presenca'].dt.month]).size().groupby(['id_aluno', 'nome_completo']).mean().rename('frequencia_mensal')
-        # Junta tudo em um DataFrame
+        # Junta tudo em um DataFrame (formatar)
         relatorio = pd.concat([total_presencas, freq_semanal, freq_mensal], axis=1).reset_index()
         file_path = "presencas_relatorio.xlsx"
         relatorio.to_excel(file_path, index=False)
