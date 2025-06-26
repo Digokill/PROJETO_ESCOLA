@@ -62,7 +62,8 @@ docker compose down
 
 ## Contribuição
 Sinta-se à vontade para contribuir com melhorias no projeto. Envie um pull request ou abra uma issue.
-
+## USE o Docker-compose (botão de play para rodar o serviço = run all service)
+## Use o insomnia para testar as rotas abaixo. 
 ## Rotas de Pesquisa
 - **Pesquisa de professor utilizando id**: http://localhost:5000/professores/4
 - **Pesquisa de disciplina**: http://localhost:5000/disciplinas/2
@@ -82,7 +83,7 @@ Sinta-se à vontade para contribuir com melhorias no projeto. Envie um pull requ
 - **Para login de Usuario**: http://localhost:5000/usuarios/login 
 
 
-# USAR O DDL PARA VER AS TABELAS por favor!
+# USAR O DDL (dentro da pasta scripts) PARA VER AS TABELAS por favor!
 
 ## Exemplos de Json e ordem para teste
 
@@ -150,6 +151,15 @@ Sinta-se à vontade para contribuir com melhorias no projeto. Envie um pull requ
   "senha": "minhasenha123",
   "nivel_acesso": "administrador",
   "id_professor": null
+}
+
+- **Pesquisa de criação de relatório do aluno**: http://localhost:5000/alunos/exportar_excel
+- **Pesquisa de criação de relatório de presença do aluno**: http://localhost:5000/presencas/exportar_excel
+- **Pesquisa de criação de relatório de pagamentos do aluno**: http://localhost:5000/pagamentos/exportar_excel
+- **Para login de Usuario**: http://localhost:5000/usuarios/login 
+{
+  "login": "admin",
+  "senha": "minhasenha123"
 }
 
 --------------------------------------------------------
